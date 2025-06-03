@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "EnhancedInputComponent.h"
+#include "Components/SPRAttributeComponent.h"
+#include "UI/SPRPlayerHUDWidget.h"
 #include "SPRCharacter.generated.h"
 
 
@@ -19,14 +21,42 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Input")
 	class UInputMappingContext* DefaultMappingContext;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Input")
 	class UInputAction* MoveAction;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Input")
 	class UInputAction* LookAction;
+
+	UPROPERTY(EditAnywhere, Category="Input")
+	class UInputAction* SprintRollingAction;
+
+private:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	class USPRAttributeComponent* AttributeComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	class USPRStateComponent* StateComponent;
+
+protected:
+	UPROPERTY(EditAnywhere, Category="UI")
+	TSubclassOf<UUserWidget> PlayerHUDWidgetClass;
+	UPROPERTY()
+	USPRPlayerHUDWidget* PlayerHUDWidget;
+
+protected:
+	// 애니메이션 몽타주 - 구르기
+	UPROPERTY(EditAnywhere, Category ="Montage")
+	UAnimMontage* RollingMontage;
+protected:
+	// 질주 속도
+	UPROPERTY(EditAnywhere, Category="Sprinting")
+	float SprintingSpeed = 750.f;
+	// 일반 속도
+	UPROPERTY(EditAnywhere, Category = "Sprinting")
+	float NormalSpeed = 500.f;
 public:
 	ASPRCharacter();
 
@@ -43,8 +73,20 @@ public:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+public:
+	FORCEINLINE USPRStateComponent* GetStateComponent() const { return StateComponent; };
+
 protected:
+
+	bool IsMoving() const;
 	// 인풋 맵핑 함수
 	void Move(const FInputActionValue& Values);
 	void Look(const FInputActionValue& Values);
+	
+	// 질주 -> 스페이스바 길게
+	void Sprinting();
+	void StopSprint();
+
+	//구르기 -> 스페이스바 짧게
+	void Rolling();
 };

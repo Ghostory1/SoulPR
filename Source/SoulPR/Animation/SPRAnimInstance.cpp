@@ -5,6 +5,8 @@
 #include "SPRAnimInstance.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Character/SPRCharacter.h"
+#include "Components/SPRStateComponent.h"
 
 USPRAnimInstance::USPRAnimInstance()
 {
@@ -41,4 +43,12 @@ void USPRAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	bShouldMove = GroundSpeed > 3.f && MovementComponent->GetCurrentAcceleration() != FVector::ZeroVector;
 
 	bIsFalling = MovementComponent->IsFalling();
+}
+
+void USPRAnimInstance::AnimNotify_ResetMovementInput()
+{
+	if (ASPRCharacter* LocalCharactger = Cast<ASPRCharacter>(GetOwningActor()))
+	{
+		LocalCharactger->GetStateComponent()->ToggleMovementInput(true);
+	}
 }

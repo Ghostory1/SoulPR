@@ -38,4 +38,8 @@ public:
 	//매 틱마다 호출되는 함수
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
+public:
+	// 구르기 후 입력 리셋
+	UFUNCTION()
+	void AnimNotify_ResetMovementInput();
 };
