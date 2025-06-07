@@ -20,11 +20,18 @@ protected:
 
 public:	
 	virtual void Tick(float DeltaTime) override;
+	//외형 설정
+	virtual void OnConstruction(const FTransform& Transform) override;
 
-	virtual void Interact(AActor* Interactor) override;
+	virtual void Interact(AActor* InteractionActor) override;
+
+public:
+	FORCEINLINE void SetEquipmentClass(const TSubclassOf<class ASPREquipment>& NewEquipmentClass) { EquipmentClass = NewEquipmentClass; };
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Item")
 	UStaticMeshComponent* Mesh;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
+	TSubclassOf<class ASPREquipment> EquipmentClass;
 };

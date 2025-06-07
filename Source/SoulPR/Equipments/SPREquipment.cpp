@@ -50,6 +50,7 @@ void ASPREquipment::UnequipItem()
 	// 상속받은 곳에서 구현
 }
 
+// #include "GameFramework/Character.h"
 void ASPREquipment::AttachToOwner(FName SocketName)
 {
 	if (ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner()))

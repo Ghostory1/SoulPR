@@ -2,7 +2,9 @@
 
 
 #include "Components/SPRCombatComponent.h"
-
+#include "Character/SPRCharacter.h"
+#include "Equipments/SPRWeapon.h"
+#include "Item/SPRPickupItem.h"
 // Sets default values for this component's properties
 USPRCombatComponent::USPRCombatComponent()
 {
@@ -34,6 +36,17 @@ void USPRCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 
 void USPRCombatComponent::SetWeapon(ASPRWeapon* NewWeapon)
 {
+	if (::IsValid(MainWeapon))
+	{
+		if (ASPRCharacter* OwnerCharacter = Cast<ASPRCharacter>(GetOwner()))
+		{
+			ASPRPickupItem* PickupItem = GetWorld()->SpawnActorDeferred<ASPRPickupItem>(ASPRPickupItem::StaticClass(), OwnerCharacter->GetActorTransform(), nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
+			PickupItem->SetEquipmentClass(MainWeapon->GetClass());
+			PickupItem->FinishSpawning(GetOwner()->GetActorTransform());
+
+			MainWeapon->Destroy();
+		}
+	}
 	MainWeapon = NewWeapon;
 }
 
