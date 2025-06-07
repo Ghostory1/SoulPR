@@ -2,6 +2,7 @@
 
 
 #include "UI/SPRPlayerHUDWidget.h"
+#include "SPRDefine.h"
 #include "SPRStatBarWidget.h"
 #include "Components/SPRAttributeComponent.h"
 

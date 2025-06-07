@@ -8,11 +8,13 @@
 #include "EnhancedInputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/SPRStateComponent.h"
+#include "Components/SPRCombatComponent.h"
 #include "SPRGameplayTags.h"
-// Sets default values
+#include "Kismet/KismetSystemLibrary.h"
+#include "Interfaces/SPRInteract.h"
+
 ASPRCharacter::ASPRCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	// 카메라가 움직여도 캐릭터의 방향 유지
@@ -41,7 +43,7 @@ ASPRCharacter::ASPRCharacter()
 
 	AttributeComponent = CreateDefaultSubobject<USPRAttributeComponent>(TEXT("Attribute"));
 	StateComponent = CreateDefaultSubobject<USPRStateComponent>(TEXT("State"));
-	
+	CombatComponent = CreateDefaultSubobject<USPRCombatComponent>(TEXT("Combat"));
 }
 
 // Called when the game starts or when spawned
@@ -63,8 +65,8 @@ void ASPRCharacter::BeginPlay()
 void ASPRCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	GEngine->AddOnScreenDebugMessage(0, 1.f, FColor::Cyan, FString::Printf(TEXT("Stamina : %f"), AttributeComponent->GetBaseStamina()));
-	GEngine->AddOnScreenDebugMessage(2, 1.f, FColor::Cyan, FString::Printf(TEXT("MaxWalkSpeed : %f"), GetCharacterMovement()->MaxWalkSpeed));
+	//GEngine->AddOnScreenDebugMessage(0, 1.f, FColor::Cyan, FString::Printf(TEXT("Stamina : %f"), AttributeComponent->GetBaseStamina()));
+	//GEngine->AddOnScreenDebugMessage(2, 1.f, FColor::Cyan, FString::Printf(TEXT("MaxWalkSpeed : %f"), GetCharacterMovement()->MaxWalkSpeed));
 }
 void ASPRCharacter::NotifyControllerChanged()
 {
@@ -91,6 +93,7 @@ void ASPRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 		EnhancedInputComponent->BindAction(SprintRollingAction, ETriggerEvent::Triggered, this, &ASPRCharacter::Sprinting);
 		EnhancedInputComponent->BindAction(SprintRollingAction, ETriggerEvent::Completed, this, &ASPRCharacter::StopSprint);
 		EnhancedInputComponent->BindAction(SprintRollingAction, ETriggerEvent::Canceled, this, &ASPRCharacter::Rolling);
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &ASPRCharacter::Interact);
 	}
 }
 
@@ -195,6 +198,45 @@ void ASPRCharacter::Rolling()
 		StateComponent->SetState(SPRGameplayTags::Character_State_Rolling);
 
 		AttributeComponent->ToggleStaminaRegeneration(true, 1.5f);
+	}
+}
+
+void ASPRCharacter::Interact()
+{
+	// 물체를 감지하고 상호작용을 할려면 CollisionTrace를 이용
+	FHitResult OutHit;
+	const FVector Start = GetActorLocation();
+	const FVector End = Start;
+	constexpr float Radius = 100.f;
+
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(COLLISION_OBJECT_INTERACTION));
+
+	TArray<AActor*> ActorsToIgnore;
+
+	//#include "Kismet/KismetSystemLibrary.h"
+	bool bHit = UKismetSystemLibrary::SphereTraceSingleForObjects(
+		this,
+		Start,
+		End,
+		Radius,
+		ObjectTypes,
+		false,
+		ActorsToIgnore,
+		EDrawDebugTrace::ForDuration,
+		OutHit,
+		true
+	);
+
+	if (bHit)
+	{
+		if (AActor* HitActor = OutHit.GetActor())
+		{
+			if (ISPRInteract* Interaction = Cast<ISPRInteract>(HitActor))
+			{
+				Interaction->Interact(this);
+			}
+		}
 	}
 }
 

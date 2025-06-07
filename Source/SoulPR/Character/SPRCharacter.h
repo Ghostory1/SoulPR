@@ -33,13 +33,19 @@ private:
 	UPROPERTY(EditAnywhere, Category="Input")
 	class UInputAction* SprintRollingAction;
 
+	UPROPERTY(EditAnywhere, Category = "Input")
+	class UInputAction* InteractAction;
+
 private:
+	// 캐릭터 스탯 관리
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class USPRAttributeComponent* AttributeComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class USPRStateComponent* StateComponent;
-
+	//무기 전투 관리
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	class USPRCombatComponent* CombatComponent;
 protected:
 	UPROPERTY(EditAnywhere, Category="UI")
 	TSubclassOf<UUserWidget> PlayerHUDWidgetClass;
@@ -89,4 +95,6 @@ protected:
 
 	//구르기 -> 스페이스바 짧게
 	void Rolling();
+	// 상호 작용키
+	void Interact();
 };
