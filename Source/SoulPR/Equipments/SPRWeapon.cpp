@@ -2,7 +2,9 @@
 
 
 #include "Equipments/SPRWeapon.h"
+
 #include "Components/SPRCombatComponent.h"
+#include "Data/SPRMontageActionData.h"
 
 ASPRWeapon::ASPRWeapon()
 {
@@ -17,10 +19,18 @@ void ASPRWeapon::EquipItem()
 	if (CombatComponent)
 	{
 		CombatComponent->SetWeapon(this);
-		AttachToOwner(UnequipSocketName);
+
+		const FName AttachSocket = CombatComponent->IsCombatEnabled() ? EquipSocketName : UnequipSocketName;
+		AttachToOwner(AttachSocket);
 	}
 }
 
 void ASPRWeapon::UnequipItem()
 {
+
+}
+
+UAnimMontage* ASPRWeapon::GetMontageForTag(const FGameplayTag& Tag, const int32 Index) const
+{
+	return MontageActionData->GetMontageForTag(Tag, Index);
 }

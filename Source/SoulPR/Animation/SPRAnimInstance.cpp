@@ -52,3 +52,12 @@ void USPRAnimInstance::AnimNotify_ResetMovementInput()
 		LocalCharactger->GetStateComponent()->ToggleMovementInput(true);
 	}
 }
+
+void USPRAnimInstance::AnimNotify_ResetState()
+{
+	// Equip , Unequip이 끝날 때, 기본 노티파이로 Character에서 설정한 GeneralAction 초기화
+	if (const ASPRCharacter* LocalCharacter = Cast<ASPRCharacter>(GetOwningActor()))
+	{
+		LocalCharacter->GetStateComponent()->ClearState();
+	}
+}

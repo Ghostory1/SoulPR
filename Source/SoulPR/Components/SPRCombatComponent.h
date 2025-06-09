@@ -26,7 +26,15 @@ public:
 protected:
 	class ASPRWeapon* MainWeapon;
 
+	// 전투 활성화 상태인지?
+	UPROPERTY(EditAnywhere)
+	bool bCombatEnabled = false;
+
 public:
 	void SetWeapon(ASPRWeapon* NewWeapon);
-		
+	FORCEINLINE ASPRWeapon* GetMainWeapon() const { return MainWeapon; }
+	FORCEINLINE bool IsCombatEnabled() const { return bCombatEnabled; }
+	FORCEINLINE void SetCombatEnabled(const bool bEnabled) { bCombatEnabled = bEnabled; }
+
+	
 };

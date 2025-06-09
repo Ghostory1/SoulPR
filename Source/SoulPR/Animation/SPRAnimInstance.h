@@ -42,4 +42,7 @@ public:
 	// 구르기 후 입력 리셋
 	UFUNCTION()
 	void AnimNotify_ResetMovementInput();
+
+	UFUNCTION()
+	void AnimNotify_ResetState();
 };

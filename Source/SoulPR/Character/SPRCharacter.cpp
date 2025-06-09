@@ -12,6 +12,7 @@
 #include "SPRGameplayTags.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Interfaces/SPRInteract.h"
+#include "Equipments/SPRWeapon.h"
 
 ASPRCharacter::ASPRCharacter()
 {
@@ -94,6 +95,7 @@ void ASPRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 		EnhancedInputComponent->BindAction(SprintRollingAction, ETriggerEvent::Completed, this, &ASPRCharacter::StopSprint);
 		EnhancedInputComponent->BindAction(SprintRollingAction, ETriggerEvent::Canceled, this, &ASPRCharacter::Rolling);
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &ASPRCharacter::Interact);
+		EnhancedInputComponent->BindAction(ToggleCombatAction, ETriggerEvent::Started, this, &ASPRCharacter::ToggleCombat);
 	}
 }
 
@@ -105,6 +107,17 @@ bool ASPRCharacter::IsMoving() const
 	}
 	
 	return false;
+}
+
+bool ASPRCharacter::CanToggleCombat() const
+{
+	check(StateComponent);
+
+	FGameplayTagContainer CheckTags;
+	CheckTags.AddTag(SPRGameplayTags::Character_State_Attacking);
+	CheckTags.AddTag(SPRGameplayTags::Character_State_Rolling);
+	CheckTags.AddTag(SPRGameplayTags::Character_State_GeneralAction);
+	return StateComponent->IsCurrentStateEqualToAny(CheckTags) == false;
 }
 
 void ASPRCharacter::Move(const FInputActionValue& Values)
@@ -235,6 +248,33 @@ void ASPRCharacter::Interact()
 			if (ISPRInteract* Interaction = Cast<ISPRInteract>(HitActor))
 			{
 				Interaction->Interact(this);
+			}
+		}
+	}
+}
+
+void ASPRCharacter::ToggleCombat()
+{
+	check(CombatComponent);
+	check(StateComponent);
+
+	if (CombatComponent)
+	{
+		if (const ASPRWeapon* Weapon = CombatComponent->GetMainWeapon())
+		{
+			if (CanToggleCombat())
+			{
+				// 토글을 하는 와중에도 토글 불가능
+				StateComponent->SetState(SPRGameplayTags::Character_State_GeneralAction);
+
+				if (CombatComponent->IsCombatEnabled())
+				{
+					PlayAnimMontage(Weapon->GetMontageForTag(SPRGameplayTags::Character_Action_Unequip));
+				}
+				else
+				{
+					PlayAnimMontage(Weapon->GetMontageForTag(SPRGameplayTags::Character_Action_Equip));
+				}
 			}
 		}
 	}

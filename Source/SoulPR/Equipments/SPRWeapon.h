@@ -19,6 +19,9 @@ protected:
 	FName EquipSocketName;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Equipment | Socket")
 	FName UnequipSocketName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Equipment | Animation")
+	class USPRMontageActionData* MontageActionData;
 	
 	UPROPERTY()
 	class USPRCombatComponent* CombatComponent;
@@ -28,4 +31,9 @@ public:
 public:
 	virtual void EquipItem() override;
 	virtual void UnequipItem() override;
+
+	UAnimMontage* GetMontageForTag(const struct FGameplayTag& Tag, const int32 Index = 0) const;
+
+	FORCEINLINE FName GetEquipSocketName() const { return EquipSocketName; };
+	FORCEINLINE FName GetUnequipSocketName() const { return UnequipSocketName; };
 };

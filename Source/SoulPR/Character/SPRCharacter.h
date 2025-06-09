@@ -46,6 +46,11 @@ private:
 	//무기 전투 관리
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class USPRCombatComponent* CombatComponent;
+
+	// 전투 활성화 / 비활성화 토글
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	UInputAction* ToggleCombatAction;
+
 protected:
 	UPROPERTY(EditAnywhere, Category="UI")
 	TSubclassOf<UUserWidget> PlayerHUDWidgetClass;
@@ -85,6 +90,8 @@ public:
 protected:
 
 	bool IsMoving() const;
+	bool CanToggleCombat() const;
+
 	// 인풋 맵핑 함수
 	void Move(const FInputActionValue& Values);
 	void Look(const FInputActionValue& Values);
@@ -97,4 +104,7 @@ protected:
 	void Rolling();
 	// 상호 작용키
 	void Interact();
+
+	// 전투 상태 전환
+	void ToggleCombat();
 };
