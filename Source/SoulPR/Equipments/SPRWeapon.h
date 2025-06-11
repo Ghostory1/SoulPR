@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "Equipments/SPREquipment.h"
 #include "SPRWeapon.generated.h"
 
@@ -25,6 +26,10 @@ protected:
 	
 	UPROPERTY()
 	class USPRCombatComponent* CombatComponent;
+
+	//각 무기마다 스태미너
+	UPROPERTY(EditAnywhere)
+	TMap<FGameplayTag, float> StaminaCostMap;
 public:
 	ASPRWeapon();
 
@@ -36,4 +41,6 @@ public:
 
 	FORCEINLINE FName GetEquipSocketName() const { return EquipSocketName; };
 	FORCEINLINE FName GetUnequipSocketName() const { return UnequipSocketName; };
+
+	float GetStaminaCost(const FGameplayTag& InTag) const;
 };

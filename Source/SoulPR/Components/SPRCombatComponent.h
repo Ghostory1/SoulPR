@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "GameplayTagContainer.h"
 #include "SPRCombatComponent.generated.h"
 
 
@@ -30,11 +31,17 @@ protected:
 	UPROPERTY(EditAnywhere)
 	bool bCombatEnabled = false;
 
+	// ¸¶Áö¸· AttackType
+	UPROPERTY(VisibleAnywhere)
+	FGameplayTag LastAttackType;
 public:
 	void SetWeapon(ASPRWeapon* NewWeapon);
 	FORCEINLINE ASPRWeapon* GetMainWeapon() const { return MainWeapon; }
 	FORCEINLINE bool IsCombatEnabled() const { return bCombatEnabled; }
 	FORCEINLINE void SetCombatEnabled(const bool bEnabled) { bCombatEnabled = bEnabled; }
+
+	FORCEINLINE FGameplayTag GetLastAttackType() const { return LastAttackType; };
+	FORCEINLINE void SetLastAttackType(const FGameplayTag& NewAttackTypeTag) { LastAttackType = NewAttackTypeTag; };
 
 	
 };
