@@ -27,9 +27,20 @@ protected:
 	UPROPERTY()
 	class USPRCombatComponent* CombatComponent;
 
+	UPROPERTY(VisibleAnywhere)
+	class USPRWeaponCollisionComponent* WeaponCollision;
+
 	//각 무기마다 스태미너
 	UPROPERTY(EditAnywhere)
 	TMap<FGameplayTag, float> StaminaCostMap;
+
+	// 기본 데미지
+	UPROPERTY(EditAnywhere)
+	float BaseDamage = 15.f;
+
+	// 데미지 승수
+	UPROPERTY(EditAnywhere)
+	TMap<FGameplayTag, float> DamageMultiplierMap;
 public:
 	ASPRWeapon();
 
@@ -43,4 +54,12 @@ public:
 	FORCEINLINE FName GetUnequipSocketName() const { return UnequipSocketName; };
 
 	float GetStaminaCost(const FGameplayTag& InTag) const;
+
+	float GetAttackDamage() const;
+	FORCEINLINE USPRWeaponCollisionComponent* GetCollision() const { return WeaponCollision; };
+
+public:
+	// 무기의 Collision에 검출된 Actor에 Damage 전달
+	// SPRWeaponCollisionComponent의 Delegate에 전달될 함수
+	void OnHitActor(const FHitResult& Hit);
 };

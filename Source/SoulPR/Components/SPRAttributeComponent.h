@@ -8,17 +8,20 @@
 #include "SPRAttributeComponent.generated.h"
 
 DECLARE_MULTICAST_DELEGATE_TwoParams(FDelegateOnAttributeChanged, ESPRAttributeType, float);
-
+DECLARE_MULTICAST_DELEGATE(FOnDeath)
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SOULPR_API USPRAttributeComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
+// DELEGATE
 public:
 	// 스탯 변경 Delegate
 	FDelegateOnAttributeChanged OnAttributeChanged;
-
+	FOnDeath OnDeath;
 protected:
+
+	// 스태미나
 	UPROPERTY(EditAnywhere, Category = "Stamina")
 	float BaseStamina = 100.f;
 	UPROPERTY(EditAnywhere, Category = "Stamina")
@@ -28,10 +31,16 @@ protected:
 	FTimerHandle StaminaRegenTimerHandle;
 	UPROPERTY(EditAnywhere, Category = "Stamina")
 	float StaminaRegenRate = 0.2f;
+
+	// 체력
+	UPROPERTY(EditAnywhere, Category = "Health")
+	float BaseHealth = 100.f;
+	UPROPERTY(EditAnywhere, Category = "Health")
+	float MaxHealth = 100.f;
 public:	
 	// Sets default values for this component's properties
 	USPRAttributeComponent();
-
+	
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -43,8 +52,11 @@ public:
 public:
 	FORCEINLINE float GetBaseStamina() const { return BaseStamina; };
 	FORCEINLINE float GetMaxStamina() const { return MaxStamina; };
-
 	FORCEINLINE float GetStaminaRatio() const { return BaseStamina / MaxStamina; };
+	
+	FORCEINLINE float GetBaseHealth() const { return BaseHealth; };
+	FORCEINLINE float GetMaxHealth() const { return MaxHealth; };
+
 	// 스태미나가 충분한지 체크
 	bool CheckHasEnoughStamina(float StaminaCost) const;
 
@@ -56,6 +68,8 @@ public:
 
 	// 델리게이트 브로드 캐스트
 	void BroadcastAttributeChanged(ESPRAttributeType InAttributeType) const;
+
+	void TakeDamageAmount(float DamageAmount);
 private:
 	// 스태미나 재충전 
 	void RegenerateStaminaHandler();

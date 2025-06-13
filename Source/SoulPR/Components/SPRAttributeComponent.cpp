@@ -2,6 +2,8 @@
 
 
 #include "Components/SPRAttributeComponent.h"
+#include "Components/SPRStateComponent.h"
+#include "SPRGameplayTags.h"
 
 // Sets default values for this component's properties
 USPRAttributeComponent::USPRAttributeComponent()
@@ -74,6 +76,29 @@ void USPRAttributeComponent::BroadcastAttributeChanged(ESPRAttributeType InAttri
 		}
 
 		OnAttributeChanged.Broadcast(InAttributeType, Ratio);
+	}
+}
+
+void USPRAttributeComponent::TakeDamageAmount(float DamageAmount)
+{
+	// 체력 차감
+	BaseHealth = FMath::Clamp(BaseHealth - DamageAmount, 0.f, MaxHealth);
+
+	BroadcastAttributeChanged(ESPRAttributeType::Health);
+
+	if (BaseHealth <= 0.f)
+	{
+		// Call Death Delegate
+		if (OnDeath.IsBound())
+		{
+			OnDeath.Broadcast();
+		}
+
+		// Set Death State
+		if (USPRStateComponent* StateComp = GetOwner()->FindComponentByClass<USPRStateComponent>())
+		{
+			StateComp->SetState(SPRGameplayTags::Character_State_Death);
+		}
 	}
 }
 
