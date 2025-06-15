@@ -4,10 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Interfaces/SPRTargeting.h"
 #include "SPREnemy.generated.h"
 
 UCLASS()
-class SOULPR_API ASPREnemy : public ACharacter
+class SOULPR_API ASPREnemy : public ACharacter , public ISPRTargeting
 {
 	GENERATED_BODY()
 
@@ -61,4 +62,21 @@ protected:
 	void HitReaction(const AActor* Attacker);
 	UAnimMontage* GetHitReactAnimation(const AActor* Attacker) const;
 
+
+// 타겟팅 충돌 체크용
+protected:
+	UPROPERTY(VisibleAnywhere)
+	class USphereComponent* TargetingSphereComponent;
+
+// LockOn UI Widget
+	UPROPERTY(VisibleAnywhere)
+	class UWidgetComponent* LockOnWidgetComponent;
+
+// Targeting Interface
+public:
+	//ISPRTargeting 구현.
+	// 타겟팅시 처리할 로직 처리
+	virtual void OnTargeted(bool bTargeted) override;
+	// 타겟팅 가능한지 체크
+	virtual bool CanBeTargeted() override;
 };

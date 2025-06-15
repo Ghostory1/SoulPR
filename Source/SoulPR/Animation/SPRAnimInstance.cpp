@@ -7,6 +7,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Character/SPRCharacter.h"
 #include "Components/SPRStateComponent.h"
+#include "KismetAnimationLibrary.h"
 
 USPRAnimInstance::USPRAnimInstance()
 {
@@ -43,6 +44,8 @@ void USPRAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	bShouldMove = GroundSpeed > 3.f && MovementComponent->GetCurrentAcceleration() != FVector::ZeroVector;
 
 	bIsFalling = MovementComponent->IsFalling();
+	
+	Direction = UKismetAnimationLibrary::CalculateDirection(Velocity, Character->GetActorRotation());
 }
 
 void USPRAnimInstance::AnimNotify_ResetMovementInput()

@@ -48,6 +48,18 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* HeavyAttackAction;
 
+	// LockedOn
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	UInputAction* LockOnTargetAction;
+
+	// 왼쪽으로 타겟 전환
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	UInputAction* LeftTargetAction;
+
+	// 오른쪽으로 타겟 전환
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	UInputAction* RightTargetAction;
+
 private:
 	// 캐릭터 스탯 관리
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
@@ -59,6 +71,9 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class USPRCombatComponent* CombatComponent;
 
+	// LockOn Targeting
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	class USPRTargetingComponent* TargetingComponent;
 	
 
 	
@@ -147,6 +162,11 @@ protected:
 	void Attack();
 	void SpecialAttack();
 	void HeavyAttack();
+
+	//LockedOn
+	void LockOnTarget();
+	void LeftTarget();
+	void RightTarget();
 
 protected:
 	// 현재 상태에서 수행 가능한 일반공격

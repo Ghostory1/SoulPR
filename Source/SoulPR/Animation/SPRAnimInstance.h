@@ -29,6 +29,8 @@ protected:
 	bool bShouldMove;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement Data")
 	bool bIsFalling;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement Data")
+	float Direction;
 
 public:
 	USPRAnimInstance();

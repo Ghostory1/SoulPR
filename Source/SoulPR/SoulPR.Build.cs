@@ -16,7 +16,8 @@ public class SoulPR : ModuleRules
 			"Engine", 
 			"InputCore", 
 			"EnhancedInput",
-			"GameplayTags"
+			"GameplayTags",
+			"AnimGraphRuntime"
 		
 		});
 

@@ -11,12 +11,30 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Sound/SoundCue.h"
+#include "Components/SphereComponent.h"
+#include "Components/WidgetComponent.h"
+#include "SPRGameplayTags.h"
 
 
 ASPREnemy::ASPREnemy()
 {
  
 	PrimaryActorTick.bCanEverTick = true;
+
+	//Targeting 구체 생성 및 Collision 생성
+	TargetingSphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("TargetingSphere"));
+	TargetingSphereComponent->SetupAttachment(GetRootComponent());
+	TargetingSphereComponent->SetCollisionObjectType(COLLISION_OBJECT_TARGETING);
+	TargetingSphereComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
+	TargetingSphereComponent->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+
+	// LockOn 위젯
+	LockOnWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("LockOnWidgetComponent"));
+	LockOnWidgetComponent->SetupAttachment(GetRootComponent());
+	LockOnWidgetComponent->SetRelativeLocation(FVector(0.f, 0.f, 50.f));
+	LockOnWidgetComponent->SetDrawSize(FVector2D(30.f, 30.f));
+	LockOnWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	LockOnWidgetComponent->SetVisibility(false);
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
@@ -173,5 +191,27 @@ UAnimMontage* ASPREnemy::GetHitReactAnimation(const AActor* Attacker) const
 	}
 
 	return SelectedMontage;
+}
+
+void ASPREnemy::OnTargeted(bool bTargeted)
+{
+	if (LockOnWidgetComponent)
+	{
+		LockOnWidgetComponent->SetVisibility(bTargeted);
+	}
+}
+
+
+bool ASPREnemy::CanBeTargeted()
+{
+	// 이미 죽었으면 Tag처리해서 더이상 타겟팅 X
+	if (!StateComponent)
+	{
+		return false;
+	}
+
+	FGameplayTagContainer TagCheck;
+	TagCheck.AddTag(SPRGameplayTags::Character_State_Death);
+	return StateComponent->IsCurrentStateEqualToAny(TagCheck) == false;
 }
 

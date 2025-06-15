@@ -13,6 +13,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Interfaces/SPRInteract.h"
 #include "Equipments/SPRWeapon.h"
+#include "Components/SPRTargetingComponent.h"
 
 ASPRCharacter::ASPRCharacter()
 {
@@ -45,6 +46,8 @@ ASPRCharacter::ASPRCharacter()
 	AttributeComponent = CreateDefaultSubobject<USPRAttributeComponent>(TEXT("Attribute"));
 	StateComponent = CreateDefaultSubobject<USPRStateComponent>(TEXT("State"));
 	CombatComponent = CreateDefaultSubobject<USPRCombatComponent>(TEXT("Combat"));
+	TargetingComponent = CreateDefaultSubobject<USPRTargetingComponent>(TEXT("Targeting"));
+
 }
 
 // Called when the game starts or when spawned
@@ -105,6 +108,11 @@ void ASPRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &ThisClass::SpecialAttack);
 		// Heavy 공격
 		EnhancedInputComponent->BindAction(HeavyAttackAction, ETriggerEvent::Started, this, &ThisClass::HeavyAttack);
+
+		// LockOn 
+		EnhancedInputComponent->BindAction(LockOnTargetAction, ETriggerEvent::Started, this, &ThisClass::LockOnTarget);
+		EnhancedInputComponent->BindAction(LeftTargetAction, ETriggerEvent::Started, this, &ThisClass::LeftTarget);
+		EnhancedInputComponent->BindAction(RightTargetAction, ETriggerEvent::Started, this, &ThisClass::RightTarget);
 	}
 }
 
@@ -165,6 +173,12 @@ void ASPRCharacter::Move(const FInputActionValue& Values)
 
 void ASPRCharacter::Look(const FInputActionValue& Values)
 {
+	// LockOn 상태에서는 마우스 입력 차단
+	if (TargetingComponent && TargetingComponent->IsLockOn())
+	{
+		return;
+	}
+
 	FVector2D LookDirection = Values.Get<FVector2D>();
 
 	if (Controller != nullptr)
@@ -332,6 +346,22 @@ void ASPRCharacter::HeavyAttack()
 		ExecuteComboAttack(AttackTypeTag);
 	}
 }
+
+void ASPRCharacter::LockOnTarget()
+{
+	TargetingComponent->ToggleLockOn();
+}
+
+void ASPRCharacter::LeftTarget()
+{
+	TargetingComponent->SwitchingLockedOnActor(ESwitchingDirection::Left);
+}
+
+void ASPRCharacter::RightTarget()
+{
+	TargetingComponent->SwitchingLockedOnActor(ESwitchingDirection::Right);
+}
+
 
 FGameplayTag ASPRCharacter::GetAttackPerform() const
 {
