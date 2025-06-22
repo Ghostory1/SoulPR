@@ -8,11 +8,16 @@
 #include "SPRCombatComponent.generated.h"
 
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FDelegateOnChangedCombat, bool);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SOULPR_API USPRCombatComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
+public:
+	// Combat 상태 전환을 알리는 Delegate
+	FDelegateOnChangedCombat OnChangedCombat;
 public:
 	USPRCombatComponent();
 
@@ -38,7 +43,7 @@ public:
 	void SetWeapon(ASPRWeapon* NewWeapon);
 	FORCEINLINE ASPRWeapon* GetMainWeapon() const { return MainWeapon; }
 	FORCEINLINE bool IsCombatEnabled() const { return bCombatEnabled; }
-	FORCEINLINE void SetCombatEnabled(const bool bEnabled) { bCombatEnabled = bEnabled; }
+	void SetCombatEnabled(const bool bEnabled);
 
 	FORCEINLINE FGameplayTag GetLastAttackType() const { return LastAttackType; };
 	FORCEINLINE void SetLastAttackType(const FGameplayTag& NewAttackTypeTag) { LastAttackType = NewAttackTypeTag; };

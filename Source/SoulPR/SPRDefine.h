@@ -28,3 +28,20 @@ enum class ESwitchingDirection : uint8
 	Left,
 	Right,
 };
+
+UENUM(BlueprintType)
+enum class ECombatType : uint8
+{
+	None,
+	SwordShield,
+	TwoHanded,
+	MeleeFists
+
+};
+
+UENUM(BlueprintType)
+enum class EWeaponCollisionType : uint8
+{
+	MainCollision,
+	SecondCollision,
+};

@@ -50,3 +50,12 @@ void USPRCombatComponent::SetWeapon(ASPRWeapon* NewWeapon)
 	MainWeapon = NewWeapon;
 }
 
+void USPRCombatComponent::SetCombatEnabled(const bool bEnabled)
+{
+	bCombatEnabled = bEnabled;
+	if (OnChangedCombat.IsBound())
+	{
+		OnChangedCombat.Broadcast(bCombatEnabled);
+	}
+}
+

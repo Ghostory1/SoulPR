@@ -8,10 +8,17 @@
 #include "SPRGameplayTags.h"
 #include "Components/SPRWeaponCollisionComponent.h"
 #include "Kismet/GameplayStatics.h"
+
+#include "Animation/SPRAnimInstance.h"
+#include "Character/SPRCharacter.h"
+
 ASPRWeapon::ASPRWeapon()
 {
 	WeaponCollision = CreateDefaultSubobject<USPRWeaponCollisionComponent>("WeaponCollision");
 	WeaponCollision->OnHitActor.AddUObject(this, &ThisClass::OnHitActor);
+
+	SecondWeaponCollision = CreateDefaultSubobject<USPRWeaponCollisionComponent>("SecondCollision");
+	SecondWeaponCollision->OnHitActor.AddUObject(this, &ThisClass::OnHitActor);
 
 	StaminaCostMap.Add(SPRGameplayTags::Character_Attack_Light, 7.f);
 	StaminaCostMap.Add(SPRGameplayTags::Character_Attack_Running, 12.f);
@@ -39,6 +46,15 @@ void ASPRWeapon::EquipItem()
 		// 무기의 충돌 트레이스 컴포넌트에 무기 메쉬 컴포넌트를 설정
 		WeaponCollision->SetWeaponMesh(Mesh);
 		
+		// 장착한 무기의 CombatType 으로  업데이트
+		if (ASPRCharacter* OwnerCharacter = Cast<ASPRCharacter>(GetOwner()))
+		{
+			if (USPRAnimInstance* Anim = Cast<USPRAnimInstance>(OwnerCharacter->GetMesh()->GetAnimInstance()))
+			{
+				Anim->UpdateCombatMode(CombatType);
+			}
+		}
+
 		// 무기를 소유한 OwnerActor를 충돌에서 무시
 		WeaponCollision->AddIgnoredActor(GetOwner());
 	}
@@ -77,6 +93,32 @@ float ASPRWeapon::GetAttackDamage() const
 	}
 
 	return BaseDamage;
+}
+
+void ASPRWeapon::ActivateCollision(EWeaponCollisionType InCollisionType)
+{
+	switch (InCollisionType)
+	{
+	case EWeaponCollisionType::MainCollision:
+		WeaponCollision->TurnOnCollision();
+		break;
+	case EWeaponCollisionType::SecondCollision:
+		SecondWeaponCollision->TurnOnCollision();
+		break;
+	}
+}
+
+void ASPRWeapon::DeactivateCollision(EWeaponCollisionType InCollisionType)
+{
+	switch (InCollisionType)
+	{
+	case EWeaponCollisionType::MainCollision:
+		WeaponCollision->TurnOffCollision();
+		break;
+	case EWeaponCollisionType::SecondCollision:
+		SecondWeaponCollision->TurnOffCollision();
+		break;
+	}
 }
 
 void ASPRWeapon::OnHitActor(const FHitResult& Hit)

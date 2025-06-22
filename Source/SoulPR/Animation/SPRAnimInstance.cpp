@@ -64,3 +64,13 @@ void USPRAnimInstance::AnimNotify_ResetState()
 		LocalCharacter->GetStateComponent()->ClearState();
 	}
 }
+
+void USPRAnimInstance::UpdateCombatMode(const ECombatType InCombatType)
+{
+	CombatType = InCombatType;
+}
+
+void USPRAnimInstance::OnChangedCombat(const bool bInCombatEnabled)
+{
+	bCombatEnabled = bInCombatEnabled;
+}

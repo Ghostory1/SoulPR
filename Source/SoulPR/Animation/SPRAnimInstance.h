@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
+#include "SPRDefine.h"
 #include "SPRAnimInstance.generated.h"
 
 /**
@@ -32,6 +33,11 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement Data")
 	float Direction;
 
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat Data")
+	bool bCombatEnabled = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat Data")
+	ECombatType CombatType = ECombatType::None;
 public:
 	USPRAnimInstance();
 
@@ -47,4 +53,12 @@ public:
 
 	UFUNCTION()
 	void AnimNotify_ResetState();
+
+// Animation
+public:
+	void UpdateCombatMode(const ECombatType InCombatType);
+
+// Delegate Functions
+protected:
+	void OnChangedCombat(const bool bInCombatEnabled);
 };
