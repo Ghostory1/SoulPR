@@ -8,6 +8,7 @@
 #include "Character/SPRCharacter.h"
 #include "Components/SPRStateComponent.h"
 #include "KismetAnimationLibrary.h"
+#include "Components/SPRCombatComponent.h"
 
 USPRAnimInstance::USPRAnimInstance()
 {
@@ -22,6 +23,10 @@ void USPRAnimInstance::NativeInitializeAnimation()
 	if (Character)
 	{
 		MovementComponent = Character->GetCharacterMovement();
+		if (USPRCombatComponent* CombatComponent = Character->GetComponentByClass<USPRCombatComponent>())
+		{
+			CombatComponent->OnChangedCombat.AddUObject(this, &ThisClass::OnChangedCombat);
+		}
 	}
 
 }
@@ -46,6 +51,7 @@ void USPRAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	bIsFalling = MovementComponent->IsFalling();
 	
 	Direction = UKismetAnimationLibrary::CalculateDirection(Velocity, Character->GetActorRotation());
+
 }
 
 void USPRAnimInstance::AnimNotify_ResetMovementInput()

@@ -3,9 +3,7 @@
 
 #include "Animation/AnimNotifyState_WeaponCollision.h"
 
-#include "Components/SPRCombatComponent.h"
-#include "Components/SPRWeaponCollisionComponent.h"
-#include "Equipments/SPRWeapon.h"
+#include "Interfaces/SPRCombatInterface.h"
 
 UAnimNotifyState_WeaponCollision::UAnimNotifyState_WeaponCollision(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
@@ -16,15 +14,11 @@ void UAnimNotifyState_WeaponCollision::NotifyBegin(USkeletalMeshComponent* MeshC
 {
 	Super::NotifyBegin(MeshComp, Animation, TotalDuration, EventReference);
 
-	if (const AActor* OwnerActor = MeshComp->GetOwner())
+	if (AActor* OwnerActor = MeshComp->GetOwner())
 	{
-		if (const USPRCombatComponent* CombatComponent = OwnerActor->GetComponentByClass<USPRCombatComponent>())
+		if (ISPRCombatInterface* CombatInterface = Cast<ISPRCombatInterface>(OwnerActor))
 		{
-			const ASPRWeapon* Weapon = CombatComponent->GetMainWeapon();
-			if (::IsValid(Weapon))
-			{
-				Weapon->GetCollision()->TurnOnCollision();
-			}
+			CombatInterface->ActivateWeaponCollision(CollisionType);
 		}
 	}
 }
@@ -33,15 +27,11 @@ void UAnimNotifyState_WeaponCollision::NotifyEnd(USkeletalMeshComponent* MeshCom
 {
 	Super::NotifyEnd(MeshComp, Animation, EventReference);
 
-	if (const AActor* OwnerActor = MeshComp->GetOwner())
+	if (AActor* OwnerActor = MeshComp->GetOwner())
 	{
-		if (const USPRCombatComponent* CombatComponent = OwnerActor->GetComponentByClass<USPRCombatComponent>())
+		if (ISPRCombatInterface* CombatInterface = Cast<ISPRCombatInterface>(OwnerActor))
 		{
-			const ASPRWeapon* Weapon = CombatComponent->GetMainWeapon();
-			if (::IsValid(Weapon))
-			{
-				Weapon->GetCollision()->TurnOffCollision();
-			}
+			CombatInterface->DeactivateWeaponCollision(CollisionType);
 		}
 	}
 }

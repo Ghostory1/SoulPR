@@ -14,6 +14,7 @@
 #include "Interfaces/SPRInteract.h"
 #include "Equipments/SPRWeapon.h"
 #include "Components/SPRTargetingComponent.h"
+#include "Equipments/SPRFistWeapon.h"
 
 ASPRCharacter::ASPRCharacter()
 {
@@ -54,7 +55,7 @@ ASPRCharacter::ASPRCharacter()
 void ASPRCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	// HUD »ý¼º
+	// Player HUD »ý¼º
 	if (PlayerHUDWidgetClass)
 	{
 		PlayerHUDWidget = CreateWidget<USPRPlayerHUDWidget>(GetWorld(), PlayerHUDWidgetClass);
@@ -63,6 +64,16 @@ void ASPRCharacter::BeginPlay()
 			PlayerHUDWidget->AddToViewport();
 		}
 	}
+
+	// ÁÖ¸Ô ¹«±â ÀåÂø
+	if (FistWeaponClass)
+	{
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+		ASPRFistWeapon* FistWeapon = GetWorld()->SpawnActor<ASPRFistWeapon>(FistWeaponClass, GetActorTransform(), SpawnParams);
+		FistWeapon->EquipItem();
+	}
+
 }
 
 // Called every frame
@@ -71,6 +82,8 @@ void ASPRCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	//GEngine->AddOnScreenDebugMessage(0, 1.f, FColor::Cyan, FString::Printf(TEXT("Stamina : %f"), AttributeComponent->GetBaseStamina()));
 	//GEngine->AddOnScreenDebugMessage(2, 1.f, FColor::Cyan, FString::Printf(TEXT("MaxWalkSpeed : %f"), GetCharacterMovement()->MaxWalkSpeed));
+	
+
 }
 void ASPRCharacter::NotifyControllerChanged()
 {
@@ -129,6 +142,16 @@ bool ASPRCharacter::IsMoving() const
 bool ASPRCharacter::CanToggleCombat() const
 {
 	check(StateComponent);
+
+	if (IsValid(CombatComponent->GetMainWeapon()) == false)
+	{
+		return false;
+	}
+	
+	if (CombatComponent->GetMainWeapon()->GetCombatType() == ECombatType::MeleeFists)
+	{
+		return false;
+	}
 
 	FGameplayTagContainer CheckTags;
 	CheckTags.AddTag(SPRGameplayTags::Character_State_Attacking);
@@ -499,5 +522,21 @@ void ASPRCharacter::AttackFinished(const float ComboResetDelay)
 	}
 	// ComboResetDelay ÈÄ¿¡ ÄÞº¸ ½ÃÄö½º Á¾·á
 	GetWorld()->GetTimerManager().SetTimer(ComboResetTimerHandle, this, &ThisClass::ResetCombo, ComboResetDelay, false);
+}
+
+void ASPRCharacter::ActivateWeaponCollision(EWeaponCollisionType WeaponCollisionType)
+{
+	if (CombatComponent)
+	{
+		CombatComponent->GetMainWeapon()->ActivateCollision(WeaponCollisionType);
+	}
+}
+
+void ASPRCharacter::DeactivateWeaponCollision(EWeaponCollisionType WeaponCollisionType)
+{
+	if (CombatComponent)
+	{
+		CombatComponent->GetMainWeapon()->DeactivateCollision(WeaponCollisionType);
+	}
 }
 

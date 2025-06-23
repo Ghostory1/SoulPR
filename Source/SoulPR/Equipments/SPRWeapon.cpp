@@ -54,7 +54,7 @@ void ASPRWeapon::EquipItem()
 				Anim->UpdateCombatMode(CombatType);
 			}
 		}
-
+		
 		// 무기를 소유한 OwnerActor를 충돌에서 무시
 		WeaponCollision->AddIgnoredActor(GetOwner());
 	}

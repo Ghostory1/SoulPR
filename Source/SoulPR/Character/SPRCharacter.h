@@ -8,13 +8,17 @@
 #include "Components/SPRAttributeComponent.h"
 #include "UI/SPRPlayerHUDWidget.h"
 #include "GameplayTagContainer.h"
+#include "Interfaces/SPRCombatInterface.h"
 #include "SPRCharacter.generated.h"
 
 
 UCLASS()
-class SOULPR_API ASPRCharacter : public ACharacter
+class SOULPR_API ASPRCharacter : public ACharacter , public ISPRCombatInterface
 {
 	GENERATED_BODY()
+public:
+	
+
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -75,15 +79,15 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class USPRTargetingComponent* TargetingComponent;
 	
-
-	
-
 protected:
 	UPROPERTY(EditAnywhere, Category="UI")
 	TSubclassOf<UUserWidget> PlayerHUDWidgetClass;
 	UPROPERTY()
 	USPRPlayerHUDWidget* PlayerHUDWidget;
-
+protected:
+	//주먹 무기
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class ASPRFistWeapon> FistWeaponClass;
 protected:
 	// 애니메이션 몽타주 - 구르기
 	UPROPERTY(EditAnywhere, Category ="Montage")
@@ -188,4 +192,9 @@ public:
 	void EnableComboWindow();
 	void DisableComboWindow();
 	void AttackFinished(const float ComboResetDelay);
+
+//  ISPRCombatInterface 인터페이스 구현부
+public:
+	virtual void ActivateWeaponCollision(EWeaponCollisionType WeaponCollisionType) override;
+	virtual void DeactivateWeaponCollision(EWeaponCollisionType WeaponCollisionType) override;
 };

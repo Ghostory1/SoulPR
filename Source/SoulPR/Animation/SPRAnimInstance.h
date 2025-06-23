@@ -54,6 +54,7 @@ public:
 	UFUNCTION()
 	void AnimNotify_ResetState();
 
+
 // Animation
 public:
 	void UpdateCombatMode(const ECombatType InCombatType);
