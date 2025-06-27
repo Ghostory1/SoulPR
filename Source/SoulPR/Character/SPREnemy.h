@@ -56,7 +56,13 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Montage | HitReact")
 	UAnimMontage* HitReactAnimRight;
-
+protected:
+	// 적 AI 포인트
+	// 지점은 에디터에서 설정
+	UPROPERTY(EditAnywhere, Category = "AI | Patrol")
+	TArray<class ATargetPoint*> PatrolPoints;
+	UPROPERTY(VisibleAnywhere, Category = "AI | Patrol")
+	int32 PatrolIndex = 0;
 protected:
 	void ImpactEffect(const FVector& Location);
 	void HitReaction(const AActor* Attacker);
@@ -79,4 +85,15 @@ public:
 	virtual void OnTargeted(bool bTargeted) override;
 	// 타겟팅 가능한지 체크
 	virtual bool CanBeTargeted() override;
+
+public:
+	FORCEINLINE class ATargetPoint* GetPatrolPoint()
+	{
+		return PatrolPoints.Num() >= (PatrolIndex + 1) ? PatrolPoints[PatrolIndex] : nullptr;
+	}
+	FORCEINLINE void IncrementPatrolIndex()
+	{
+		// 사이즈 넘어가면 다시 0부터
+		PatrolIndex = (PatrolIndex + 1) % PatrolPoints.Num();
+	}
 };
