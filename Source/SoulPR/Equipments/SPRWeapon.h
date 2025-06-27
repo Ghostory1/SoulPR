@@ -62,6 +62,8 @@ public:
 	virtual void UnequipItem() override;
 
 	UAnimMontage* GetMontageForTag(const struct FGameplayTag& Tag, const int32 Index = 0) const;
+	UAnimMontage* GetRandomMontageForTag(const struct FGameplayTag& Tag) const;
+
 
 	FORCEINLINE FName GetEquipSocketName() const { return EquipSocketName; };
 	FORCEINLINE FName GetUnequipSocketName() const { return UnequipSocketName; };

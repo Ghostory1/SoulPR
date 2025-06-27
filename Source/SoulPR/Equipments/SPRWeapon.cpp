@@ -47,7 +47,7 @@ void ASPRWeapon::EquipItem()
 		WeaponCollision->SetWeaponMesh(Mesh);
 		
 		// 장착한 무기의 CombatType 으로  업데이트
-		if (ASPRCharacter* OwnerCharacter = Cast<ASPRCharacter>(GetOwner()))
+		if (ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner()))
 		{
 			if (USPRAnimInstance* Anim = Cast<USPRAnimInstance>(OwnerCharacter->GetMesh()->GetAnimInstance()))
 			{
@@ -70,6 +70,10 @@ UAnimMontage* ASPRWeapon::GetMontageForTag(const FGameplayTag& Tag, const int32 
 	return MontageActionData->GetMontageForTag(Tag, Index);
 }
 
+UAnimMontage* ASPRWeapon::GetRandomMontageForTag(const struct FGameplayTag& Tag) const
+{
+	return MontageActionData->GetRandomMontageForTag(Tag);
+}
 float ASPRWeapon::GetStaminaCost(const FGameplayTag& InTag) const
 {
 	if (StaminaCostMap.Contains(InTag))

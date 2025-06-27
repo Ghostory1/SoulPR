@@ -7,6 +7,7 @@
 #include "Components/SPRAttributeComponent.h"
 #include "Components/SPRStateComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SPRCombatComponent.h"
 #include "Engine/DamageEvents.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -14,6 +15,7 @@
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
 #include "SPRGameplayTags.h"
+#include "Equipments/SPRWeapon.h"
 
 
 ASPREnemy::ASPREnemy()
@@ -41,6 +43,7 @@ ASPREnemy::ASPREnemy()
 
 	AttributeComponent = CreateDefaultSubobject<USPRAttributeComponent>(TEXT("Attribute"));
 	StateComponent = CreateDefaultSubobject<USPRStateComponent>(TEXT("State"));
+	CombatComponent = CreateDefaultSubobject<USPRCombatComponent>(TEXT("Combat"));
 
 	// OnDeath Delegate에 함수 바인딩
 	AttributeComponent->OnDeath.AddUObject(this, &ThisClass::OnDeath);
@@ -51,6 +54,16 @@ void ASPREnemy::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	// 무기 장착
+	if (DefaultWeaponClass)
+	{
+		FActorSpawnParameters Params;
+		Params.Owner = this;
+
+		ASPRWeapon* Weapon = GetWorld()->SpawnActor<ASPRWeapon>(DefaultWeaponClass, GetActorTransform(), Params);
+		CombatComponent->SetCombatEnabled(true);
+		Weapon->EquipItem();
+	}
 }
 
 
@@ -213,5 +226,49 @@ bool ASPREnemy::CanBeTargeted()
 	FGameplayTagContainer TagCheck;
 	TagCheck.AddTag(SPRGameplayTags::Character_State_Death);
 	return StateComponent->IsCurrentStateEqualToAny(TagCheck) == false;
+}
+
+void ASPREnemy::ActivateWeaponCollision(EWeaponCollisionType WeaponCollisionType)
+{
+	if (CombatComponent)
+	{
+		CombatComponent->GetMainWeapon()->ActivateCollision(WeaponCollisionType);
+	}
+}
+
+void ASPREnemy::DeactivateWeaponCollision(EWeaponCollisionType WeaponCollisionType)
+{
+	if (CombatComponent)
+	{
+		CombatComponent->GetMainWeapon()->DeactivateCollision(WeaponCollisionType);
+	}
+}
+
+void ASPREnemy::PerformAttack(FGameplayTag& AttackTypeTag, FOnMontageEnded& MontageEndedDelegate)
+{
+	// 랜덤하게 공격 애니메이션 가져오기
+	check(StateComponent)
+	check(AttributeComponent)
+	check(CombatComponent)
+
+	if (const ASPRWeapon* Weapon = CombatComponent->GetMainWeapon())
+	{
+		StateComponent->SetState(SPRGameplayTags::Character_State_Attacking);
+		CombatComponent->SetLastAttackType(AttackTypeTag);
+		AttributeComponent->ToggleStaminaRegeneration(false);
+
+		if (UAnimMontage* Montage = Weapon->GetRandomMontageForTag(AttackTypeTag))
+		{
+			if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+			{
+				AnimInstance->Montage_Play(Montage);
+				AnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, Montage);
+			}
+		}
+
+		const float StaminaCost = Weapon->GetStaminaCost(AttackTypeTag);
+		AttributeComponent->DecreaseStamina(StaminaCost);
+		AttributeComponent->ToggleStaminaRegeneration(true, 1.5f);
+	}
 }
 

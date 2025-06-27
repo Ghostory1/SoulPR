@@ -25,4 +25,7 @@ class SOULPR_API ISPRCombatInterface
 public:
 	virtual void ActivateWeaponCollision(EWeaponCollisionType WeaponCollisionType) = 0;
 	virtual void DeactivateWeaponCollision(EWeaponCollisionType WeaponCollisionType) = 0;
+
+	// Enemy의 공격 -> Tag와 Montage가 끝나면 호출
+	virtual void PerformAttack(struct FGameplayTag& AttackTypeTag, FOnMontageEnded& MontageEndedDelegate) {}
 };

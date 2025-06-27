@@ -3,7 +3,7 @@
 
 #include "Data/SPRMontageActionData.h"
 
-UAnimMontage* USPRMontageActionData::GetMontageForTag(const FGameplayTag& GroupTag, const int32 Index)
+UAnimMontage* USPRMontageActionData::GetMontageForTag(const FGameplayTag& GroupTag, const int32 Index) const
 {
 	if (MontageGroupMap.Contains(GroupTag))
 	{
@@ -13,6 +13,23 @@ UAnimMontage* USPRMontageActionData::GetMontageForTag(const FGameplayTag& GroupT
 		{
 			return MontageGroup.Animations[Index];
 		}
+	}
+
+	return nullptr;
+}
+
+UAnimMontage* USPRMontageActionData::GetRandomMontageForTag(const FGameplayTag& GroupTag) const
+{
+	if (MontageGroupMap.Contains(GroupTag))
+	{
+		const FSPRMontageGroup& MontageGroup = MontageGroupMap[GroupTag];
+
+		
+		// ·£´ý Index
+		const int32 RandomIndex = FMath::RandRange(0, MontageGroup.Animations.Num() - 1);
+		
+		return GetMontageForTag(GroupTag, RandomIndex);
+		
 	}
 
 	return nullptr;

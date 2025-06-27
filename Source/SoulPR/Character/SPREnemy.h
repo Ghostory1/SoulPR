@@ -5,10 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/SPRTargeting.h"
+#include "Interfaces/SPRCombatInterface.h"
 #include "SPREnemy.generated.h"
 
 UCLASS()
-class SOULPR_API ASPREnemy : public ACharacter , public ISPRTargeting
+class SOULPR_API ASPREnemy : public ACharacter , public ISPRTargeting, public ISPRCombatInterface
 {
 	GENERATED_BODY()
 
@@ -26,7 +27,10 @@ public:
 	virtual float TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 	virtual void OnDeath();
-
+protected:
+	// 에디터상 무기 설정
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class ASPRWeapon> DefaultWeaponClass;
 protected:
 	UPROPERTY(VisibleAnywhere)
 	class USPRAttributeComponent* AttributeComponent;
@@ -34,6 +38,9 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	class USPRStateComponent* StateComponent;
 
+	UPROPERTY(VisibleAnywhere)
+	class USPRCombatComponent* CombatComponent;
+	
 
 // Effect Section
 protected:
@@ -78,7 +85,7 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	class UWidgetComponent* LockOnWidgetComponent;
 
-// Targeting Interface
+// Interface
 public:
 	//ISPRTargeting 구현.
 	// 타겟팅시 처리할 로직 처리
@@ -86,6 +93,10 @@ public:
 	// 타겟팅 가능한지 체크
 	virtual bool CanBeTargeted() override;
 
+	// SPRCombatInterface 구현
+	virtual void ActivateWeaponCollision(EWeaponCollisionType WeaponCollisionType) override;
+	virtual void DeactivateWeaponCollision(EWeaponCollisionType WeaponCollisionType) override;
+	virtual void PerformAttack(struct FGameplayTag& AttackTypeTag, FOnMontageEnded& MontageEndedDelegate)  override;
 public:
 	FORCEINLINE class ATargetPoint* GetPatrolPoint()
 	{
