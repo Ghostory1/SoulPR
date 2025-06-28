@@ -15,6 +15,10 @@
 #include "Equipments/SPRWeapon.h"
 #include "Components/SPRTargetingComponent.h"
 #include "Equipments/SPRFistWeapon.h"
+#include "Engine/DamageEvents.h"
+#include "Sound/SoundCue.h"
+#include "Kismet/GameplayStatics.h"
+#include "Components/CapsuleComponent.h"
 
 ASPRCharacter::ASPRCharacter()
 {
@@ -49,6 +53,8 @@ ASPRCharacter::ASPRCharacter()
 	CombatComponent = CreateDefaultSubobject<USPRCombatComponent>(TEXT("Combat"));
 	TargetingComponent = CreateDefaultSubobject<USPRTargetingComponent>(TEXT("Targeting"));
 
+	// OnDeath Delegate 함수 바인딩
+	AttributeComponent->OnDeath.AddUObject(this, &ThisClass::OnDeath);
 }
 
 // Called when the game starts or when spawned
@@ -129,6 +135,78 @@ void ASPRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	}
 }
 
+float ASPRCharacter::TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCurser)
+{
+	float ActualDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCurser);
+
+	if (AttributeComponent)
+	{
+		AttributeComponent->TakeDamageAmount(ActualDamage);
+		GEngine->AddOnScreenDebugMessage(0, 1.5f, FColor::Cyan, FString::Printf(TEXT("Damage : %f"), ActualDamage));
+	}
+
+	// 상태를 바꾸고 움직이지 못하게 한다.
+	StateComponent->SetState(SPRGameplayTags::Character_State_Hit);
+	StateComponent->ToggleMovementInput(false);
+
+	if (DamageEvent.IsOfType(FPointDamageEvent::ClassID))
+	{
+		const FPointDamageEvent* PointDamageEvent = static_cast<const FPointDamageEvent*>(&DamageEvent);
+
+		// 데미지 방향
+		FVector ShotDirection = PointDamageEvent->ShotDirection;
+		// 히트 위치 ( 표면 접촉 관점)
+		FVector ImpactPoint = PointDamageEvent->HitInfo.ImpactPoint;
+		// 히트 방향
+		FVector ImpactDirection = PointDamageEvent->HitInfo.ImpactNormal;
+		// 히트한 객체의 Location( 객체 중심 관점 )
+		FVector HitLocation = PointDamageEvent->HitInfo.Location;
+
+		ImpactEffect(ImpactPoint);
+
+		HitReaction(EventInstigator->GetPawn());
+	}
+	return ActualDamage;
+}
+void ASPRCharacter::ImpactEffect(const FVector& Location)
+{
+	// Sound , 파티클 처리
+	if (ImpactSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), ImpactSound, Location);
+	}
+
+	if (ImpactParticle)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticle, Location);
+	}
+}
+void ASPRCharacter::HitReaction(const AActor* Attacker)
+{
+	// 애니메이션 처리
+	check(CombatComponent);
+
+	if (UAnimMontage* HitReactAnimMontage = CombatComponent->GetMainWeapon()->GetHitReactAnimation(Attacker))
+	{
+		PlayAnimMontage(HitReactAnimMontage);
+	}
+	
+}
+void ASPRCharacter::OnDeath()
+{
+	if (UCapsuleComponent* CapsuleComp = GetCapsuleComponent())
+	{
+		CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+
+	// Ragdoll
+	if (USkeletalMeshComponent* MeshComp = GetMesh())
+	{
+		MeshComp->SetCollisionProfileName("Ragdoll");
+		MeshComp->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+		MeshComp->SetSimulatePhysics(true);
+	}
+}
 bool ASPRCharacter::IsMoving() const
 {
 	if (UCharacterMovementComponent* MovementComp = GetCharacterMovement())
@@ -412,6 +490,7 @@ bool ASPRCharacter::CanPerformAttack(const FGameplayTag& AttackTypeTag) const
 	FGameplayTagContainer CheckTags;
 	CheckTags.AddTag(SPRGameplayTags::Character_State_Rolling);
 	CheckTags.AddTag(SPRGameplayTags::Character_State_GeneralAction);
+	CheckTags.AddTag(SPRGameplayTags::Character_State_Hit);
 
 	const float StaminaCost = CombatComponent->GetMainWeapon()->GetStaminaCost(AttackTypeTag);
 

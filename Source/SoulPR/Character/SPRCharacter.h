@@ -89,6 +89,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<class ASPRFistWeapon> FistWeaponClass;
 protected:
+	// 피격 시 사운드, 이펙트
+	UPROPERTY(EditAnywhere, Category="Effect")
+	class USoundCue* ImpactSound;
+	UPROPERTY(EditAnywhere, Category = "Effect")
+	class UParticleSystem* ImpactParticle;
+protected:
 	// 애니메이션 몽타주 - 구르기
 	UPROPERTY(EditAnywhere, Category ="Montage")
 	UAnimMontage* RollingMontage;
@@ -138,6 +144,12 @@ public:
 
 public:
 	FORCEINLINE USPRStateComponent* GetStateComponent() const { return StateComponent; };
+
+	// 데미지 받을 때 처리
+	virtual float TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCurser) override;
+	void ImpactEffect(const FVector& Location);
+	void HitReaction(const AActor* Attacker);
+	void OnDeath();
 
 protected:
 

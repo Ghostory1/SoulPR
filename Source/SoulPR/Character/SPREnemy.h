@@ -50,19 +50,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Effect")
 	UParticleSystem* ImpactParticle;
 
-// Montage Section
-protected:
-	UPROPERTY(EditAnywhere, Category = "Montage | HitReact")
-	UAnimMontage* HitReactAnimFront;
-
-	UPROPERTY(EditAnywhere, Category = "Montage | HitReact")
-	UAnimMontage* HitReactAnimBack;
-
-	UPROPERTY(EditAnywhere, Category = "Montage | HitReact")
-	UAnimMontage* HitReactAnimLeft;
-
-	UPROPERTY(EditAnywhere, Category = "Montage | HitReact")
-	UAnimMontage* HitReactAnimRight;
 protected:
 	// 적 AI 포인트
 	// 지점은 에디터에서 설정
@@ -73,7 +60,6 @@ protected:
 protected:
 	void ImpactEffect(const FVector& Location);
 	void HitReaction(const AActor* Attacker);
-	UAnimMontage* GetHitReactAnimation(const AActor* Attacker) const;
 
 
 // 타겟팅 충돌 체크용

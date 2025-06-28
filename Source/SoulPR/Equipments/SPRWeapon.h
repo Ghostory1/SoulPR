@@ -63,6 +63,7 @@ public:
 
 	UAnimMontage* GetMontageForTag(const struct FGameplayTag& Tag, const int32 Index = 0) const;
 	UAnimMontage* GetRandomMontageForTag(const struct FGameplayTag& Tag) const;
+	UAnimMontage* GetHitReactAnimation(const AActor* Attacker) const;
 
 
 	FORCEINLINE FName GetEquipSocketName() const { return EquipSocketName; };
