@@ -72,6 +72,7 @@ void USPRAttributeComponent::BroadcastAttributeChanged(ESPRAttributeType InAttri
 			Ratio = GetStaminaRatio();
 			break;
 		case ESPRAttributeType::Health:
+			Ratio = GetHealthRatio();
 			break;
 		}
 

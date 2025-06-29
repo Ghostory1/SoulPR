@@ -53,6 +53,7 @@ public:
 	FORCEINLINE float GetBaseStamina() const { return BaseStamina; };
 	FORCEINLINE float GetMaxStamina() const { return MaxStamina; };
 	FORCEINLINE float GetStaminaRatio() const { return BaseStamina / MaxStamina; };
+	FORCEINLINE float GetHealthRatio() const { return BaseHealth / MaxHealth; };
 	
 	FORCEINLINE float GetBaseHealth() const { return BaseHealth; };
 	FORCEINLINE float GetMaxHealth() const { return MaxHealth; };

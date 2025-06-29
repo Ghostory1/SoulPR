@@ -23,6 +23,9 @@ protected:
 
 	FTimerHandle TimerHandle;
 
+	UPROPERTY()
+	class ASPREnemy* ControlledEnemy;
+
 public:
 	ASPREnemyAIController();
 

@@ -16,12 +16,19 @@
 #include "Components/WidgetComponent.h"
 #include "SPRGameplayTags.h"
 #include "Equipments/SPRWeapon.h"
-
+#include "UI/SPRStatBarWidget.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Perception/AISense_Damage.h"
+#include "AIController.h"
+#include "BrainComponent.h"
 
 ASPREnemy::ASPREnemy()
 {
  
 	PrimaryActorTick.bCanEverTick = true;
+
+	bUseControllerRotationYaw = false;
+	GetCharacterMovement()->bOrientRotationToMovement= true;
 
 	//Targeting 구체 생성 및 Collision 생성
 	TargetingSphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("TargetingSphere"));
@@ -38,6 +45,15 @@ ASPREnemy::ASPREnemy()
 	LockOnWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 	LockOnWidgetComponent->SetVisibility(false);
 
+	// Health 위젯
+	HealthBarWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarWidgetComponent"));
+	HealthBarWidgetComponent->SetupAttachment(GetRootComponent());
+	HealthBarWidgetComponent->SetRelativeLocation(FVector(0.f, 0.f, 100.f));
+	HealthBarWidgetComponent->SetDrawSize(FVector2D(100.f, 5.f));
+	HealthBarWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	HealthBarWidgetComponent->SetVisibility(false);
+
+
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 
@@ -47,6 +63,7 @@ ASPREnemy::ASPREnemy()
 
 	// OnDeath Delegate에 함수 바인딩
 	AttributeComponent->OnDeath.AddUObject(this, &ThisClass::OnDeath);
+	AttributeComponent->OnAttributeChanged.AddUObject(this, &ThisClass::OnAttributeChanged);
 }
 
 
@@ -64,6 +81,9 @@ void ASPREnemy::BeginPlay()
 		CombatComponent->SetCombatEnabled(true);
 		Weapon->EquipItem();
 	}
+
+	// 체력바 설정
+	SetupHealthBar();
 }
 
 
@@ -104,8 +124,12 @@ float ASPREnemy::TakeDamage(float Damage, const FDamageEvent& DamageEvent, ACont
 		// 히트한 객체의 Location( 객체 중심 관점 )
 		FVector HitLocation = PointDamageEvent->HitInfo.Location;
 
-		ImpactEffect(ImpactPoint);
+		
+		// AI 가 데미지를 인식할수 있도록 알려줌
+		// 데미지를 입으면 감각에 알리는 함수
+		UAISense_Damage::ReportDamageEvent(GetWorld(), this, EventInstigator->GetPawn(), ActualDamage, HitLocation, HitLocation);
 
+		ImpactEffect(ImpactPoint);
 		//방향에 맞는 애니메이션 실행
 		HitReaction(EventInstigator->GetPawn());
 	}
@@ -115,6 +139,12 @@ float ASPREnemy::TakeDamage(float Damage, const FDamageEvent& DamageEvent, ACont
 
 void ASPREnemy::OnDeath()
 {
+	//Stop Behavior Tree
+	if (AAIController* AIController = Cast<AAIController>(GetController()))
+	{
+		AIController->GetBrainComponent()->StopLogic(TEXT("Death"));
+	}
+
 	if (UCapsuleComponent* CapsuleComp = GetCapsuleComponent())
 	{
 		CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -128,6 +158,37 @@ void ASPREnemy::OnDeath()
 		MeshComp->SetSimulatePhysics(true);
 	}
 
+}
+void ASPREnemy::OnAttributeChanged(ESPRAttributeType AttributeType, float InValue)
+{
+	if (AttributeType == ESPRAttributeType::Health)
+	{
+		if (HealthBarWidgetComponent)
+		{
+			if (const USPRStatBarWidget* StatBar = Cast<USPRStatBarWidget>(HealthBarWidgetComponent->GetWidget()))
+			{
+				StatBar->SetRatio(InValue);
+			}
+		}
+	}
+}
+
+void ASPREnemy::SetupHealthBar()
+{
+	if (HealthBarWidgetComponent)
+	{
+		if (USPRStatBarWidget* StatBar = Cast<USPRStatBarWidget>(HealthBarWidgetComponent->GetWidget()))
+		{
+			// HP Bar 색깔 설정
+			StatBar->FillColorAndOpacity = FLinearColor::Red;
+		}
+	}
+
+	// 체력 초기값 설정
+	if (AttributeComponent)
+	{
+		AttributeComponent->BroadcastAttributeChanged(ESPRAttributeType::Health);
+	}
 }
 
 void ASPREnemy::ImpactEffect(const FVector& Location)
@@ -220,6 +281,14 @@ void ASPREnemy::PerformAttack(FGameplayTag& AttackTypeTag, FOnMontageEnded& Mont
 		const float StaminaCost = Weapon->GetStaminaCost(AttackTypeTag);
 		AttributeComponent->DecreaseStamina(StaminaCost);
 		AttributeComponent->ToggleStaminaRegeneration(true, 1.5f);
+	}
+}
+
+void ASPREnemy::ToggleHealthBarVisibility(bool bVisibility)
+{
+	if (HealthBarWidgetComponent)
+	{
+		HealthBarWidgetComponent->SetVisibility(bVisibility);
 	}
 }
 

@@ -8,6 +8,7 @@
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
 #include "Perception/AIPerceptionComponent.h"
+#include "Character/SPREnemy.h"
 
 ASPREnemyAIController::ASPREnemyAIController()
 {
@@ -18,6 +19,8 @@ void ASPREnemyAIController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
+	ControlledEnemy = Cast<ASPREnemy>(InPawn);
+
 	RunBehaviorTree(BehaviorTreeAsset);
 
 	// UpdateTarget 타이머 등록
@@ -26,6 +29,7 @@ void ASPREnemyAIController::OnPossess(APawn* InPawn)
 
 void ASPREnemyAIController::OnUnPossess()
 {
+	ControlledEnemy = nullptr;
 	GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
 	Super::OnUnPossess();
 }
@@ -40,10 +44,12 @@ void ASPREnemyAIController::UpdateTarget() const
 	if (OutActors.Contains(PlayerCharacter))
 	{
 		SetTarget(PlayerCharacter);
+		ControlledEnemy->ToggleHealthBarVisibility(true);
 	}
 	else
 	{
 		SetTarget(nullptr);
+		ControlledEnemy->ToggleHealthBarVisibility(false);
 	}
 }
 

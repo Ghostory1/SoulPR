@@ -20,6 +20,9 @@ protected:
 	//블루프린트에서 만든 위젯을 바인딩할 변수
 	UPROPERTY(meta=(BindWidget), BlueprintReadWrite)
 	class USPRStatBarWidget* StaminaBarWidget;
+
+	UPROPERTY(meta = (BindWidget), BlueprintReadWrite)
+	class USPRStatBarWidget* HealthBarWidget;
 public:
 	USPRPlayerHUDWidget(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 

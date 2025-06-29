@@ -18,6 +18,7 @@ protected:
 	UPROPERTY(meta=(BindWidget), BlueprintReadWrite)
 	class UProgressBar* StatBar;
 
+public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StatBar")
 	FLinearColor FillColorAndOpacity = FLinearColor::Red;
 public:

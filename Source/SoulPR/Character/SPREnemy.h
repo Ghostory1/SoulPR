@@ -25,8 +25,12 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	virtual float TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
-
+	
+// Delegate Func Section
+protected:
 	virtual void OnDeath();
+	void OnAttributeChanged(ESPRAttributeType AttributeType, float InValue);
+	void SetupHealthBar();
 protected:
 	// 에디터상 무기 설정
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -40,8 +44,19 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	class USPRCombatComponent* CombatComponent;
-	
 
+	// 타겟팅 충돌 체크용
+	UPROPERTY(VisibleAnywhere)
+	class USphereComponent* TargetingSphereComponent;
+
+	// LockOn UI Widget
+	UPROPERTY(VisibleAnywhere)
+	class UWidgetComponent* LockOnWidgetComponent;
+
+	// Health Bar Widget 
+	UPROPERTY(VisibleAnywhere)
+	class UWidgetComponent* HealthBarWidgetComponent;
+	
 // Effect Section
 protected:
 	UPROPERTY(EditAnywhere, Category="Effect")
@@ -62,14 +77,7 @@ protected:
 	void HitReaction(const AActor* Attacker);
 
 
-// 타겟팅 충돌 체크용
-protected:
-	UPROPERTY(VisibleAnywhere)
-	class USphereComponent* TargetingSphereComponent;
 
-// LockOn UI Widget
-	UPROPERTY(VisibleAnywhere)
-	class UWidgetComponent* LockOnWidgetComponent;
 
 // Interface
 public:
@@ -83,6 +91,9 @@ public:
 	virtual void ActivateWeaponCollision(EWeaponCollisionType WeaponCollisionType) override;
 	virtual void DeactivateWeaponCollision(EWeaponCollisionType WeaponCollisionType) override;
 	virtual void PerformAttack(struct FGameplayTag& AttackTypeTag, FOnMontageEnded& MontageEndedDelegate)  override;
+
+	// HP Bar 토글
+	void ToggleHealthBarVisibility(bool bVisibility);
 public:
 	FORCEINLINE class ATargetPoint* GetPatrolPoint()
 	{
