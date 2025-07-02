@@ -9,6 +9,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Character/SPREnemy.h"
+#include "Components/SPRRotationComponent.h"
 
 ASPREnemyAIController::ASPREnemyAIController()
 {
@@ -58,5 +59,10 @@ void ASPREnemyAIController::SetTarget(AActor* NewTarget) const
 	if (IsValid(Blackboard))
 	{
 		Blackboard->SetValueAsObject(FName("Target"), NewTarget);
+	}
+
+	if (USPRRotationComponent* RotationComponent = ControlledEnemy->GetComponentByClass<USPRRotationComponent>())
+	{
+		RotationComponent->SetTargetActor(NewTarget);
 	}
 }

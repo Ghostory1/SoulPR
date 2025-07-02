@@ -45,6 +45,9 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	class USPRCombatComponent* CombatComponent;
 
+	UPROPERTY(VisibleAnywhere)
+	class USPRRotationComponent* RotationComponent;
+
 	// 타겟팅 충돌 체크용
 	UPROPERTY(VisibleAnywhere)
 	class USphereComponent* TargetingSphereComponent;

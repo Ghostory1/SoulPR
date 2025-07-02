@@ -21,6 +21,7 @@
 #include "Perception/AISense_Damage.h"
 #include "AIController.h"
 #include "BrainComponent.h"
+#include "Components/SPRRotationComponent.h"
 
 ASPREnemy::ASPREnemy()
 {
@@ -60,6 +61,7 @@ ASPREnemy::ASPREnemy()
 	AttributeComponent = CreateDefaultSubobject<USPRAttributeComponent>(TEXT("Attribute"));
 	StateComponent = CreateDefaultSubobject<USPRStateComponent>(TEXT("State"));
 	CombatComponent = CreateDefaultSubobject<USPRCombatComponent>(TEXT("Combat"));
+	RotationComponent = CreateDefaultSubobject<USPRRotationComponent>(TEXT("RotationComponent"));
 
 	// OnDeath Delegate에 함수 바인딩
 	AttributeComponent->OnDeath.AddUObject(this, &ThisClass::OnDeath);
