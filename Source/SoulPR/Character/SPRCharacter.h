@@ -144,6 +144,8 @@ public:
 
 public:
 	FORCEINLINE USPRStateComponent* GetStateComponent() const { return StateComponent; };
+	bool IsDeath() const;
+
 
 	// 데미지 받을 때 처리
 	virtual float TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCurser) override;

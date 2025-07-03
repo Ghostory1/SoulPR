@@ -3,6 +3,7 @@
 
 #include "Components/SPRStateComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "SPRGameplayTags.h"
 
 USPRStateComponent::USPRStateComponent()
 {
@@ -58,6 +59,10 @@ void USPRStateComponent::MovementInputEnableAction()
 
 void USPRStateComponent::ClearState()
 {
+	if (CurrentState == SPRGameplayTags::Character_State_Death)
+	{
+		return;
+	}
 	CurrentState = FGameplayTag::EmptyTag;
 }
 

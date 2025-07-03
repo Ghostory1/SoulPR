@@ -11,6 +11,8 @@
 #include "Character/SPREnemy.h"
 #include "Components/SPRRotationComponent.h"
 
+#include "Character/SPRCharacter.h"
+
 ASPREnemyAIController::ASPREnemyAIController()
 {
 	AIPerceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerception"));
@@ -40,12 +42,20 @@ void ASPREnemyAIController::UpdateTarget() const
 	TArray<AActor*> OutActors;
 	AIPerceptionComponent->GetKnownPerceivedActors(nullptr, OutActors);
 
-	ACharacter* PlayerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+	ASPRCharacter* PlayerCharacter = Cast<ASPRCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 
 	if (OutActors.Contains(PlayerCharacter))
 	{
-		SetTarget(PlayerCharacter);
-		ControlledEnemy->ToggleHealthBarVisibility(true);
+		if (!PlayerCharacter->IsDeath())
+		{
+			SetTarget(PlayerCharacter);
+			ControlledEnemy->ToggleHealthBarVisibility(true);
+		}
+		else
+		{
+			SetTarget(nullptr);
+			ControlledEnemy->ToggleHealthBarVisibility(false);
+		}
 	}
 	else
 	{

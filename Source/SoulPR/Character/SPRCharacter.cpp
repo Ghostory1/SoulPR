@@ -135,6 +135,16 @@ void ASPRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	}
 }
 
+bool ASPRCharacter::IsDeath() const
+{
+	check(StateComponent);
+
+	FGameplayTagContainer CheckTags;
+	CheckTags.AddTag(SPRGameplayTags::Character_State_Death);
+
+	return StateComponent->IsCurrentStateEqualToAny(CheckTags);
+}
+
 float ASPRCharacter::TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCurser)
 {
 	float ActualDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCurser);

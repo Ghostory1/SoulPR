@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "GameplayTagContainer.h"
+#include "SPRGameplayTags.h"
 #include "SPRStateComponent.generated.h"
 
 
@@ -36,7 +37,14 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 public:
-	FORCEINLINE void SetState(const FGameplayTag NewState) { CurrentState = NewState; };
+	FORCEINLINE void SetState(const FGameplayTag NewState) 
+	{ 
+		if (CurrentState == SPRGameplayTags::Character_State_Death)
+		{
+			return;
+		}
+		CurrentState = NewState; 
+	};
 	FORCEINLINE FGameplayTag GetCurrentState() const { return CurrentState; };
 
 	//스테이트 초기화
