@@ -79,6 +79,16 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class USPRTargetingComponent* TargetingComponent;
 	
+// Body Parts Mesh
+// 방어구 장착 시 안보이게 해줄 부위
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	USkeletalMeshComponent* TorsoMesh;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	USkeletalMeshComponent* LegsMesh;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	USkeletalMeshComponent* FeetMesh;
+
 protected:
 	UPROPERTY(EditAnywhere, Category="UI")
 	TSubclassOf<UUserWidget> PlayerHUDWidgetClass;
@@ -146,6 +156,8 @@ public:
 	FORCEINLINE USPRStateComponent* GetStateComponent() const { return StateComponent; };
 	bool IsDeath() const;
 
+	// 바디 파츠 껏다 켰다
+	void SetBodyPartActive(const ESPRArmourType ArmourType, const bool bActive) const;
 
 	// 데미지 받을 때 처리
 	virtual float TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCurser) override;

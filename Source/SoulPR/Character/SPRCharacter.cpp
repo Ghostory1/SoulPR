@@ -48,6 +48,15 @@ ASPRCharacter::ASPRCharacter()
 	// 대신 붐이 이미 회전을 따라가므로, 붐만 따라가게 하면 된다
 	FollowCamera->bUsePawnControlRotation = false;
 
+
+	// Body Parts
+	TorsoMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Torso"));
+	LegsMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Legs"));
+	FeetMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Feet"));
+	TorsoMesh->SetupAttachment(GetMesh());
+	LegsMesh->SetupAttachment(GetMesh());
+	FeetMesh->SetupAttachment(GetMesh());
+
 	AttributeComponent = CreateDefaultSubobject<USPRAttributeComponent>(TEXT("Attribute"));
 	StateComponent = CreateDefaultSubobject<USPRStateComponent>(TEXT("State"));
 	CombatComponent = CreateDefaultSubobject<USPRCombatComponent>(TEXT("Combat"));
@@ -55,6 +64,8 @@ ASPRCharacter::ASPRCharacter()
 
 	// OnDeath Delegate 함수 바인딩
 	AttributeComponent->OnDeath.AddUObject(this, &ThisClass::OnDeath);
+
+
 }
 
 // Called when the game starts or when spawned
@@ -145,6 +156,26 @@ bool ASPRCharacter::IsDeath() const
 	return StateComponent->IsCurrentStateEqualToAny(CheckTags);
 }
 
+void ASPRCharacter::SetBodyPartActive(const ESPRArmourType ArmourType, const bool bActive) const
+{
+	switch (ArmourType) {
+	case ESPRArmourType::Chest:
+		TorsoMesh->SetVisibility(bActive);
+		TorsoMesh->SetActive(bActive);
+		break;
+	case ESPRArmourType::Pants:
+		LegsMesh->SetVisibility(bActive);
+		LegsMesh->SetActive(bActive);
+		break;
+	case ESPRArmourType::Boots:
+		FeetMesh->SetVisibility(bActive);
+		FeetMesh->SetActive(bActive);
+		break;
+	case ESPRArmourType::Gloves:
+		break;
+	}
+}
+
 float ASPRCharacter::TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCurser)
 {
 	float ActualDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCurser);
@@ -152,7 +183,7 @@ float ASPRCharacter::TakeDamage(float Damage, const FDamageEvent& DamageEvent, A
 	if (AttributeComponent)
 	{
 		AttributeComponent->TakeDamageAmount(ActualDamage);
-		GEngine->AddOnScreenDebugMessage(0, 1.5f, FColor::Cyan, FString::Printf(TEXT("Damage : %f"), ActualDamage));
+		//GEngine->AddOnScreenDebugMessage(0, 1.5f, FColor::Cyan, FString::Printf(TEXT("Damage : %f"), ActualDamage));
 	}
 
 	// 상태를 바꾸고 움직이지 못하게 한다.

@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "GameplayTagContainer.h"
+#include "SPRDefine.h"
+#include "Equipments/SPRArmour.h"
 #include "SPRCombatComponent.generated.h"
 
 
@@ -30,7 +32,11 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 protected:
+	UPROPERTY()
 	class ASPRWeapon* MainWeapon;
+
+	UPROPERTY()
+	TMap<ESPRArmourType, ASPRArmour*> ArmourMap;
 
 	// 전투 활성화 상태인지?
 	UPROPERTY(EditAnywhere)
@@ -41,7 +47,16 @@ protected:
 	FGameplayTag LastAttackType;
 public:
 	void SetWeapon(ASPRWeapon* NewWeapon);
+	void SetArmour(ASPRArmour* NewArmour);
 	FORCEINLINE ASPRWeapon* GetMainWeapon() const { return MainWeapon; }
+	FORCEINLINE ASPRArmour* GetArmour(const ESPRArmourType ArmourType)
+	{
+		if (ArmourMap.Contains(ArmourType))
+		{
+			return ArmourMap[ArmourType];
+		}
+		return nullptr;
+	}
 	FORCEINLINE bool IsCombatEnabled() const { return bCombatEnabled; }
 	void SetCombatEnabled(const bool bEnabled);
 

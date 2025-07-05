@@ -17,7 +17,7 @@ public:
 	UStaticMesh* MeshAsset;
 
 	UPROPERTY(EditAnywhere, Category = "Equipment | Mesh")
-	UStaticMeshComponent* Mesh;
+	UMeshComponent* Mesh;
 public:	
 	// Sets default values for this actor's properties
 	ASPREquipment();

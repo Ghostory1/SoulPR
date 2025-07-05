@@ -82,8 +82,15 @@ void USPRAttributeComponent::BroadcastAttributeChanged(ESPRAttributeType InAttri
 
 void USPRAttributeComponent::TakeDamageAmount(float DamageAmount)
 {
+	// 방어력 공식 적용.
+	const float MaxDamage = DamageAmount * (DamageAmount / (DamageAmount + DefenseStat));
+	const float TotalDamage = FMath::Clamp(DamageAmount, 0, MaxDamage);
+
+	// 디버그 메시지
+	GEngine->AddOnScreenDebugMessage( 6 , 1.f , FColor::Red, FString::Printf(TEXT("DamageAmount:%f, TotalDamage: %f"), DamageAmount, TotalDamage));
+
 	// 체력 차감
-	BaseHealth = FMath::Clamp(BaseHealth - DamageAmount, 0.f, MaxHealth);
+	BaseHealth = FMath::Clamp(BaseHealth - TotalDamage, 0.f, MaxHealth);
 
 	BroadcastAttributeChanged(ESPRAttributeType::Health);
 

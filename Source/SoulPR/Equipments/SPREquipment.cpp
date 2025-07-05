@@ -34,9 +34,9 @@ void ASPREquipment::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
 
-	if (MeshAsset)
+	if (UStaticMeshComponent* StaticMesh = Cast<UStaticMeshComponent>(Mesh))
 	{
-		Mesh->SetStaticMesh(MeshAsset);
+		StaticMesh->SetStaticMesh(MeshAsset);
 	}
 }
 

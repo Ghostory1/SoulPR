@@ -50,6 +50,40 @@ void USPRCombatComponent::SetWeapon(ASPRWeapon* NewWeapon)
 	MainWeapon = NewWeapon;
 }
 
+void USPRCombatComponent::SetArmour(ASPRArmour* NewArmour)
+{
+	const ESPRArmourType ArmourType = NewArmour->GetArmourType();
+	
+	// 이미 같은 부위가 장착되어있으면 바닥에 PickupItem으로 떨구고 NewArmour 장착
+	if (ASPRArmour* EquippedArmourPart = GetArmour(ArmourType))
+	{
+		if (IsValid(EquippedArmourPart))
+		{
+			// 여기까지 들어오면 방어구가 장착되어있는거니 PickupItem으로 만들어줌
+			if (const AActor* OwnerActor = GetOwner())
+			{
+				ASPRPickupItem* PickupItem = GetWorld()->SpawnActorDeferred<ASPRPickupItem>(ASPRPickupItem::StaticClass(), OwnerActor->GetActorTransform(), nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
+				PickupItem->SetEquipmentClass(EquippedArmourPart->GetClass());
+				PickupItem->FinishSpawning(OwnerActor->GetActorTransform());
+			}
+
+			// 장착 해제
+			EquippedArmourPart->UnequipItem();
+			// 삭제
+			EquippedArmourPart->Destroy();
+		}
+
+		// 새로 입력된 장비를 저장
+		ArmourMap[ArmourType] = NewArmour;
+	}
+	else
+	{
+		// 기존에 장착된 장비가 없는 경우 Add
+		ArmourMap.Add(ArmourType, NewArmour);
+	}
+	
+}
+
 void USPRCombatComponent::SetCombatEnabled(const bool bEnabled)
 {
 	bCombatEnabled = bEnabled;

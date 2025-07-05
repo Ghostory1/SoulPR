@@ -37,6 +37,9 @@ protected:
 	float BaseHealth = 100.f;
 	UPROPERTY(EditAnywhere, Category = "Health")
 	float MaxHealth = 100.f;
+
+	UPROPERTY(EditAnywhere, Category = "Defense")
+	float DefenseStat = 0.f;
 public:	
 	// Sets default values for this component's properties
 	USPRAttributeComponent();
@@ -54,6 +57,16 @@ public:
 	FORCEINLINE float GetMaxStamina() const { return MaxStamina; };
 	FORCEINLINE float GetStaminaRatio() const { return BaseStamina / MaxStamina; };
 	FORCEINLINE float GetHealthRatio() const { return BaseHealth / MaxHealth; };
+
+	FORCEINLINE  void IncreaseDefense(const float DefenseAmount)
+	{
+		DefenseStat = DefenseStat + DefenseAmount;
+	}
+
+	FORCEINLINE  void DecreaseDefense(const float DefenseAmount)
+	{
+		DefenseStat = DefenseStat - DefenseAmount;
+	}
 	
 	FORCEINLINE float GetBaseHealth() const { return BaseHealth; };
 	FORCEINLINE float GetMaxHealth() const { return MaxHealth; };
@@ -76,3 +89,4 @@ private:
 	void RegenerateStaminaHandler();
 		
 };
+ 

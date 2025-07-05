@@ -54,3 +54,12 @@ enum class ESPRAIBehavior : uint8
 	MeleeAttack,
 	Approach,
 };
+
+UENUM(BlueprintType)
+enum class ESPRArmourType: uint8
+{
+	Chest, // 상의
+	Pants, // 바지
+	Boots, // 신발 
+	Gloves, // 장갑
+};
