@@ -5,6 +5,7 @@
 #include "Character/SPRCharacter.h"
 #include "Equipments/SPRWeapon.h"
 #include "Item/SPRPickupItem.h"
+#include "Equipments/SPRShield.h"
 
 USPRCombatComponent::USPRCombatComponent()
 {
@@ -38,11 +39,9 @@ void USPRCombatComponent::SetWeapon(ASPRWeapon* NewWeapon)
 {
 	if (::IsValid(MainWeapon))
 	{
-		if (ASPRCharacter* OwnerCharacter = Cast<ASPRCharacter>(GetOwner()))
-		{
-			ASPRPickupItem* PickupItem = GetWorld()->SpawnActorDeferred<ASPRPickupItem>(ASPRPickupItem::StaticClass(), OwnerCharacter->GetActorTransform(), nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
-			PickupItem->SetEquipmentClass(MainWeapon->GetClass());
-			PickupItem->FinishSpawning(GetOwner()->GetActorTransform());
+		if (const AActor* OwnerActor = GetOwner())
+		{	
+			SpawnPickupItem(OwnerActor,MainWeapon->GetClass());
 
 			MainWeapon->Destroy();
 		}
@@ -62,9 +61,7 @@ void USPRCombatComponent::SetArmour(ASPRArmour* NewArmour)
 			// 여기까지 들어오면 방어구가 장착되어있는거니 PickupItem으로 만들어줌
 			if (const AActor* OwnerActor = GetOwner())
 			{
-				ASPRPickupItem* PickupItem = GetWorld()->SpawnActorDeferred<ASPRPickupItem>(ASPRPickupItem::StaticClass(), OwnerActor->GetActorTransform(), nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
-				PickupItem->SetEquipmentClass(EquippedArmourPart->GetClass());
-				PickupItem->FinishSpawning(OwnerActor->GetActorTransform());
+				SpawnPickupItem(OwnerActor, EquippedArmourPart->GetClass());
 			}
 
 			// 장착 해제
@@ -84,6 +81,21 @@ void USPRCombatComponent::SetArmour(ASPRArmour* NewArmour)
 	
 }
 
+void USPRCombatComponent::SetShield(ASPRShield* NewShield)
+{
+	if (IsValid(Shield))
+	{
+		if (const AActor* OwnerActor = GetOwner())
+		{
+			SpawnPickupItem(OwnerActor, Shield->GetClass());
+
+			Shield->Destroy();
+		}
+	}
+
+	Shield = NewShield;
+}
+
 void USPRCombatComponent::SetCombatEnabled(const bool bEnabled)
 {
 	bCombatEnabled = bEnabled;
@@ -91,5 +103,12 @@ void USPRCombatComponent::SetCombatEnabled(const bool bEnabled)
 	{
 		OnChangedCombat.Broadcast(bCombatEnabled);
 	}
+}
+
+void USPRCombatComponent::SpawnPickupItem(const AActor* OwnerActor, const TSubclassOf<ASPREquipment>& NewEquipmentClass) const
+{
+	ASPRPickupItem* PickupItem = GetWorld()->SpawnActorDeferred<ASPRPickupItem>(ASPRPickupItem::StaticClass(), OwnerActor->GetActorTransform(), nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
+	PickupItem->SetEquipmentClass(NewEquipmentClass);
+	PickupItem->FinishSpawning(OwnerActor->GetActorTransform());
 }
 

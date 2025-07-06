@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotify.h"
 #include "GameplayTagContainer.h"
+#include "SPRDefine.h"
 #include "AnimNotify_SPREquipWeapon.generated.h"
 
 /**
@@ -19,6 +20,9 @@ protected:
 	// 장착인지 알아보는 태그
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FGameplayTag MontageActionTag;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	ESPREquipmentType EquipmentType = ESPREquipmentType::Weapon;
 
 public:
 	UAnimNotify_SPREquipWeapon(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());

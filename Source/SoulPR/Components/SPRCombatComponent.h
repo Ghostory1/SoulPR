@@ -36,6 +36,9 @@ protected:
 	class ASPRWeapon* MainWeapon;
 
 	UPROPERTY()
+	class ASPRShield* Shield;
+
+	UPROPERTY()
 	TMap<ESPRArmourType, ASPRArmour*> ArmourMap;
 
 	// 전투 활성화 상태인지?
@@ -48,6 +51,7 @@ protected:
 public:
 	void SetWeapon(ASPRWeapon* NewWeapon);
 	void SetArmour(ASPRArmour* NewArmour);
+	void SetShield(ASPRShield* NewShield);
 	FORCEINLINE ASPRWeapon* GetMainWeapon() const { return MainWeapon; }
 	FORCEINLINE ASPRArmour* GetArmour(const ESPRArmourType ArmourType)
 	{
@@ -57,11 +61,14 @@ public:
 		}
 		return nullptr;
 	}
+	FORCEINLINE ASPRShield* GetShield() const { return Shield; }
+
 	FORCEINLINE bool IsCombatEnabled() const { return bCombatEnabled; }
 	void SetCombatEnabled(const bool bEnabled);
 
 	FORCEINLINE FGameplayTag GetLastAttackType() const { return LastAttackType; };
 	FORCEINLINE void SetLastAttackType(const FGameplayTag& NewAttackTypeTag) { LastAttackType = NewAttackTypeTag; };
 
-	
+private:
+	void SpawnPickupItem(const AActor* OwnerActor, const TSubclassOf<ASPREquipment>& NewEquipmentClass) const;
 };

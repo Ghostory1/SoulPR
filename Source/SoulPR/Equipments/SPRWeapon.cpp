@@ -13,6 +13,7 @@
 #include "Character/SPRCharacter.h"
 
 #include "Kismet/KismetMathLibrary.h"
+#include "Equipments/SPRShield.h"
 
 ASPRWeapon::ASPRWeapon()
 {
@@ -59,6 +60,22 @@ void ASPRWeapon::EquipItem()
 		
 		// 무기를 소유한 OwnerActor를 충돌에서 무시
 		WeaponCollision->AddIgnoredActor(GetOwner());
+
+		// 방패를 이미 가지고 있는지 체크하고 소켓의 위치를 잡아준다.
+		if (ASPRShield* Shield = CombatComponent->GetShield())
+		{
+			FName ShieldAttachSocket = Shield->GetUnequipSocketName();
+
+			if (CombatType == ECombatType::SwordShield)
+			{
+				if (CombatComponent->IsCombatEnabled())
+				{
+					ShieldAttachSocket = Shield->GetEquipSocketName();
+				}
+			}
+
+			Shield->AttachToOwner(ShieldAttachSocket);
+		}
 	}
 }
 

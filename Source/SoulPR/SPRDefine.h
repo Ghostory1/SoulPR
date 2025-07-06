@@ -63,3 +63,11 @@ enum class ESPRArmourType: uint8
 	Boots, // 신발 
 	Gloves, // 장갑
 };
+
+UENUM(BlueprintType)
+enum class ESPREquipmentType : uint8
+{
+	// AnimNotify_EquipWeapon에서 사용
+	Weapon,
+	Shield,
+};
