@@ -76,6 +76,11 @@ void USPRAnimInstance::UpdateCombatMode(const ECombatType InCombatType)
 	CombatType = InCombatType;
 }
 
+void USPRAnimInstance::UpdateBlocking(bool InShouldBlocking)
+{
+	bShouldBlocking = InShouldBlocking;
+}
+
 void USPRAnimInstance::OnChangedCombat(const bool bInCombatEnabled)
 {
 	bCombatEnabled = bInCombatEnabled;

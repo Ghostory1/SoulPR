@@ -38,6 +38,9 @@ protected:
 	bool bCombatEnabled = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat Data")
 	ECombatType CombatType = ECombatType::None;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat Data")
+	bool bShouldBlocking = false;
 public:
 	USPRAnimInstance();
 
@@ -58,7 +61,7 @@ public:
 // Animation
 public:
 	void UpdateCombatMode(const ECombatType InCombatType);
-
+	void UpdateBlocking(bool InShouldBlocking);
 // Delegate Functions
 protected:
 	void OnChangedCombat(const bool bInCombatEnabled);

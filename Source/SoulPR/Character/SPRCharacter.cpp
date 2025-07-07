@@ -19,6 +19,7 @@
 #include "Sound/SoundCue.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/CapsuleComponent.h"
+#include "Animation/SPRAnimInstance.h"
 
 ASPRCharacter::ASPRCharacter()
 {
@@ -143,6 +144,10 @@ void ASPRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 		EnhancedInputComponent->BindAction(LockOnTargetAction, ETriggerEvent::Started, this, &ThisClass::LockOnTarget);
 		EnhancedInputComponent->BindAction(LeftTargetAction, ETriggerEvent::Started, this, &ThisClass::LeftTarget);
 		EnhancedInputComponent->BindAction(RightTargetAction, ETriggerEvent::Started, this, &ThisClass::RightTarget);
+
+		// 방어자세
+		EnhancedInputComponent->BindAction(BlockAction, ETriggerEvent::Started, this, &ThisClass::Blocking);
+		EnhancedInputComponent->BindAction(BlockAction, ETriggerEvent::Completed, this, &ThisClass::BlockingEnd);
 	}
 }
 
@@ -332,6 +337,14 @@ void ASPRCharacter::Look(const FInputActionValue& Values)
 
 void ASPRCharacter::Sprinting()
 {
+	check(AttributeComponent);
+	check(CombatComponent);
+
+	if (CombatComponent->IsBlockingEnabled())
+	{
+		return;
+	}
+
 	if (AttributeComponent->CheckHasEnoughStamina(5.f) && IsMoving())
 	{
 
@@ -352,6 +365,15 @@ void ASPRCharacter::Sprinting()
 
 void ASPRCharacter::StopSprint()
 {
+
+	check(AttributeComponent);
+	check(CombatComponent);
+
+	if (CombatComponent->IsBlockingEnabled())
+	{
+		return;
+	}
+
 	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
 	AttributeComponent->ToggleStaminaRegeneration(true);
 	bSprinting = false;
@@ -504,6 +526,40 @@ void ASPRCharacter::RightTarget()
 	TargetingComponent->SwitchingLockedOnActor(ESwitchingDirection::Right);
 }
 
+void ASPRCharacter::Blocking()
+{
+	check(CombatComponent);
+	check(StateComponent);
+
+	if (CombatComponent->GetMainWeapon())
+	{
+		if (CanPlayerBlockStance())
+		{
+			GetCharacterMovement()->MaxWalkSpeed = BlockingSpeed;
+			CombatComponent->SetBlockingEnabled(true);
+			if (USPRAnimInstance* AnimInstance = Cast<USPRAnimInstance>(GetMesh()->GetAnimInstance()))
+			{
+				AnimInstance->UpdateBlocking(true);
+				StateComponent->SetState(SPRGameplayTags::Character_State_Blocking);
+			}
+		}
+	}
+}
+
+void ASPRCharacter::BlockingEnd()
+{
+	check(CombatComponent);
+	check(StateComponent);
+
+	CombatComponent->SetBlockingEnabled(false);
+	if (USPRAnimInstance* AnimInstance = Cast<USPRAnimInstance>(GetMesh()->GetAnimInstance()))
+	{
+		AnimInstance->UpdateBlocking(false);
+		StateComponent->ClearState();
+	}
+
+	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
+}
 
 FGameplayTag ASPRCharacter::GetAttackPerform() const
 {
@@ -604,6 +660,34 @@ void ASPRCharacter::ResetCombo()
 	bCanComboInput = false;
 	bSavedComboInput = false;
 	ComboCounter = 0;
+}
+
+bool ASPRCharacter::CanPlayerBlockStance() const
+{
+	check(StateComponent);
+	check(CombatComponent);
+	check(AttributeComponent);
+
+	if (IsSprinting())
+	{
+		return false;
+	}
+
+	ASPRWeapon* Weapon = CombatComponent->GetMainWeapon();
+	if (!IsValid(Weapon))
+	{
+		return false;
+	}
+
+	FGameplayTagContainer CheckTags;
+	CheckTags.AddTag(SPRGameplayTags::Character_State_Attacking);
+	CheckTags.AddTag(SPRGameplayTags::Character_State_GeneralAction);
+	CheckTags.AddTag(SPRGameplayTags::Character_State_Hit);
+	CheckTags.AddTag(SPRGameplayTags::Character_State_Rolling);
+
+	return StateComponent->IsCurrentStateEqualToAny(CheckTags) == false &&
+		Weapon->GetCombatType() == ECombatType::SwordShield &&
+		AttributeComponent->CheckHasEnoughStamina(1.f);
 }
 
 void ASPRCharacter::EnableComboWindow()

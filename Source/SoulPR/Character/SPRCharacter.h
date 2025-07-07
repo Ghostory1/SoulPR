@@ -64,6 +64,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction* RightTargetAction;
 
+	//방어자세
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	UInputAction* BlockAction;
 private:
 	// 캐릭터 스탯 관리
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
@@ -110,13 +113,17 @@ protected:
 	UAnimMontage* RollingMontage;
 protected:
 	// 질주 속도
-	UPROPERTY(EditAnywhere, Category="Sprinting")
+	UPROPERTY(EditAnywhere, Category="Movement Speed")
 	float SprintingSpeed = 750.f;
 	// 일반 속도
-	UPROPERTY(EditAnywhere, Category = "Sprinting")
+	UPROPERTY(EditAnywhere, Category = "Movement Speed")
 	float NormalSpeed = 500.f;
 
-	UPROPERTY(VisibleAnywhere, Category="Sprinting")
+	// 방어자세 속도
+	UPROPERTY(EditAnywhere, Category = "Movement Speed")
+	float BlockingSpeed = 200.f;
+
+	UPROPERTY(VisibleAnywhere, Category="Movement Speed")
 	bool bSprinting = false;
 
 protected:
@@ -198,6 +205,10 @@ protected:
 	void LeftTarget();
 	void RightTarget();
 
+	// 방어 자세
+	void Blocking();
+	void BlockingEnd();
+
 protected:
 	// 현재 상태에서 수행 가능한 일반공격
 	FGameplayTag GetAttackPerform() const;
@@ -212,6 +223,9 @@ protected:
 	void ExecuteComboAttack(const FGameplayTag& AttackTypeTag);
 	//콤보 초기화
 	void ResetCombo();
+
+	// 방어 자세 가능 여부
+	bool CanPlayerBlockStance() const;
 
 public:
 	//콤보 AnimNotify 섹션

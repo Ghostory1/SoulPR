@@ -45,6 +45,10 @@ protected:
 	UPROPERTY(EditAnywhere)
 	bool bCombatEnabled = false;
 
+	// 방어 자세를 취하고 있는지?
+	UPROPERTY()
+	bool bBlockingEnabled = false;
+
 	// 마지막 AttackType
 	UPROPERTY(VisibleAnywhere)
 	FGameplayTag LastAttackType;
@@ -65,6 +69,9 @@ public:
 
 	FORCEINLINE bool IsCombatEnabled() const { return bCombatEnabled; }
 	void SetCombatEnabled(const bool bEnabled);
+
+	FORCEINLINE bool IsBlockingEnabled() const { return bBlockingEnabled; }
+	FORCEINLINE void SetBlockingEnabled(const bool bEnabled) { bBlockingEnabled = bEnabled; }
 
 	FORCEINLINE FGameplayTag GetLastAttackType() const { return LastAttackType; };
 	FORCEINLINE void SetLastAttackType(const FGameplayTag& NewAttackTypeTag) { LastAttackType = NewAttackTypeTag; };
