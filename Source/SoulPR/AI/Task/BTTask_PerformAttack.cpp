@@ -31,18 +31,20 @@ EBTNodeResult::Type UBTTask_PerformAttack::ExecuteTask(UBehaviorTreeComponent& O
 
 				if (USPRStateComponent* StateComponent = ControlledPawn->GetComponentByClass<USPRStateComponent>())
 				{
-					StateComponent->ClearState();
+					FGameplayTagContainer CheckTags;
+					CheckTags.AddTag(SPRGameplayTags::Character_State_Parried);
+					if(StateComponent->IsCurrentStateEqualToAny(CheckTags) == false)
+					{
+						// 패링 상태가 아니면 ClearState
+						StateComponent->ClearState();
+					}
+					
 				}
-
 				FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 			});
-			
-
 		// Attack 실행
 		CombatInterface->PerformAttack(AttackTypeTag, MontageEndedDelegate);
 		return EBTNodeResult::InProgress;
 	}
-
 	return EBTNodeResult::Failed;
-
 }

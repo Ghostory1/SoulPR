@@ -149,6 +149,9 @@ void ASPRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 		// 방어자세
 		EnhancedInputComponent->BindAction(BlockAction, ETriggerEvent::Started, this, &ThisClass::Blocking);
 		EnhancedInputComponent->BindAction(BlockAction, ETriggerEvent::Completed, this, &ThisClass::BlockingEnd);
+
+		// 패링
+		EnhancedInputComponent->BindAction(ParryAction, ETriggerEvent::Started, this, &ThisClass::Parrying);
 	}
 }
 
@@ -192,6 +195,29 @@ float ASPRCharacter::TakeDamage(float Damage, const FDamageEvent& DamageEvent, A
 	// 적과 같은 방향으로 대치중인지 체크
 	// 내적으로 구함
 	bFacingEnemy = UKismetMathLibrary::InRange_FloatFloat(GetDotProductTo(EventInstigator->GetPawn()), -0.1f, 1.f);
+
+	// 패링
+	if (ParriedAttackSucceed())
+	{
+		//패링 성공 조건이 되면,
+		if (ISPRCombatInterface* CombatInterface = Cast<ISPRCombatInterface>(EventInstigator->GetPawn()))
+		{
+			// 적 캐릭터의 Parried 함수 실행
+			CombatInterface->Parried();
+
+			ASPRWeapon* MainWeapon = CombatComponent->GetMainWeapon();
+			if (IsValid(MainWeapon))
+			{
+				// 방패 방어 성공시의 이펙트를 패링에도 사용
+				FVector Location = MainWeapon->GetActorLocation();
+				ShieldBlockingEffect(Location);
+			}
+		} 
+
+		return ActualDamage;
+	}
+	// 밑에 코드는 패링에 실패할 시 
+
 
 	// 방패 방어가 가능한지?
 	if (CanPerformAttackBlocking())
@@ -610,6 +636,29 @@ void ASPRCharacter::BlockingEnd()
 	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
 }
 
+void ASPRCharacter::Parrying()
+{
+	check(CombatComponent);
+	check(StateComponent);
+	check(AttributeComponent);
+
+	if (CanPerformParry())
+	{
+		if (const ASPRWeapon* MainWeapon = CombatComponent->GetMainWeapon())
+		{
+			UAnimMontage* ParryingMontage = MainWeapon->GetMontageForTag(SPRGameplayTags::Character_State_Parrying);
+
+			StateComponent->ToggleMovementInput(false);
+			AttributeComponent->ToggleStaminaRegeneration(false);
+			AttributeComponent->DecreaseStamina(10.f);
+
+			PlayAnimMontage(ParryingMontage);
+
+			AttributeComponent->ToggleStaminaRegeneration(true, 1.5f);
+		}
+	}
+}
+
 FGameplayTag ASPRCharacter::GetAttackPerform() const
 {
 	// 달리기 공격인지 일반공격인지 선택해서 태그를 반환 
@@ -748,9 +797,46 @@ bool ASPRCharacter::CanPerformAttackBlocking() const
 	return bFacingEnemy && CombatComponent->IsBlockingEnabled() && AttributeComponent->CheckHasEnoughStamina(20.f);
 }
 
+bool ASPRCharacter::CanPerformParry() const
+{
+	check(CombatComponent);
+	check(AttributeComponent);
+	check(StateComponent);
+
+	ASPRWeapon* MainWeapon = CombatComponent->GetMainWeapon();
+	if (!IsValid(MainWeapon))
+	{
+		return false;
+	}
+
+	FGameplayTagContainer CheckTags;
+	CheckTags.AddTag(SPRGameplayTags::Character_State_Attacking);
+	CheckTags.AddTag(SPRGameplayTags::Character_State_Rolling);
+	CheckTags.AddTag(SPRGameplayTags::Character_State_GeneralAction);
+	CheckTags.AddTag(SPRGameplayTags::Character_State_Hit);
+	CheckTags.AddTag(SPRGameplayTags::Character_State_Blocking);
+	CheckTags.AddTag(SPRGameplayTags::Character_State_Death);
+	CheckTags.AddTag(SPRGameplayTags::Character_State_Parrying);
+
+	return StateComponent->IsCurrentStateEqualToAny(CheckTags) == false &&
+		MainWeapon->GetCombatType() == ECombatType::SwordShield &&
+		AttributeComponent->CheckHasEnoughStamina(1.f);
+
+}
+
+bool ASPRCharacter::ParriedAttackSucceed() const
+{
+	check(StateComponent);
+
+	FGameplayTagContainer CheckTags;
+	CheckTags.AddTag(SPRGameplayTags::Character_State_Parrying);
+
+	return StateComponent->IsCurrentStateEqualToAny(CheckTags) && bFacingEnemy; 
+}
+
 void ASPRCharacter::EnableComboWindow()
 {
-	bCanComboInput = true;
+	bCanComboInput = true; 
 	UE_LOG(LogTemp, Warning, TEXT("Combo Window Opened: Combo Counter = %d"), ComboCounter);
 }
 

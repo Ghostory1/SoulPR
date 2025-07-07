@@ -26,6 +26,8 @@ public:
 
 	virtual float TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
 // Delegate Func Section
 protected:
 	virtual void OnDeath();
@@ -35,6 +37,9 @@ protected:
 	// 에디터상 무기 설정
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<class ASPRWeapon> DefaultWeaponClass;
+
+protected:
+	FTimerHandle ParriedDelayTimerHandle;
 protected:
 	UPROPERTY(VisibleAnywhere)
 	class USPRAttributeComponent* AttributeComponent;
@@ -94,6 +99,7 @@ public:
 	virtual void ActivateWeaponCollision(EWeaponCollisionType WeaponCollisionType) override;
 	virtual void DeactivateWeaponCollision(EWeaponCollisionType WeaponCollisionType) override;
 	virtual void PerformAttack(struct FGameplayTag& AttackTypeTag, FOnMontageEnded& MontageEndedDelegate)  override;
+	virtual void Parried() override;
 
 	// HP Bar 토글
 	void ToggleHealthBarVisibility(bool bVisibility);

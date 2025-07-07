@@ -67,6 +67,10 @@ private:
 	//방어자세
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction* BlockAction;
+
+	// 패링
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	UInputAction* ParryAction;
 private:
 	// 캐릭터 스탯 관리
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
@@ -223,6 +227,9 @@ protected:
 	void Blocking();
 	void BlockingEnd();
 
+	// 패링
+	void Parrying();
+
 protected:
 	// 현재 상태에서 수행 가능한 일반공격
 	FGameplayTag GetAttackPerform() const;
@@ -243,6 +250,12 @@ protected:
 
 	// 방패 막기 방어가 가능한지?
 	bool CanPerformAttackBlocking() const;
+
+	// 패링이 가능한지?
+	bool CanPerformParry() const;
+
+	// 패링의 성공 여부
+	bool ParriedAttackSucceed() const;
 
 public:
 	//콤보 AnimNotify 섹션

@@ -28,4 +28,6 @@ public:
 
 	// Enemy의 공격 -> Tag와 Montage가 끝나면 호출
 	virtual void PerformAttack(struct FGameplayTag& AttackTypeTag, FOnMontageEnded& MontageEndedDelegate) {}
+	virtual void Parried() {}
+
 };

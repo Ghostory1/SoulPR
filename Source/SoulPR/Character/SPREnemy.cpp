@@ -139,6 +139,12 @@ float ASPREnemy::TakeDamage(float Damage, const FDamageEvent& DamageEvent, ACont
 	return ActualDamage;
 }
 
+void ASPREnemy::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	GetWorld()->GetTimerManager().ClearTimer(ParriedDelayTimerHandle);
+	Super::EndPlay(EndPlayReason);
+}
+
 void ASPREnemy::OnDeath()
 {
 	//Stop Behavior Tree
@@ -283,6 +289,36 @@ void ASPREnemy::PerformAttack(FGameplayTag& AttackTypeTag, FOnMontageEnded& Mont
 		const float StaminaCost = Weapon->GetStaminaCost(AttackTypeTag);
 		AttributeComponent->DecreaseStamina(StaminaCost);
 		AttributeComponent->ToggleStaminaRegeneration(true, 1.5f);
+	}
+}
+void ASPREnemy::Parried()
+{
+	check(StateComponent);
+	check(CombatComponent);
+	
+	StopAnimMontage();
+	StateComponent->SetState(SPRGameplayTags::Character_State_Parried);
+
+	if (const ASPRWeapon* MainWeapon = CombatComponent->GetMainWeapon())
+	{
+		UAnimMontage* ParriedAnimMontage = MainWeapon->GetMontageForTag(SPRGameplayTags::Character_Action_ParriedHit);
+		
+		// 패링을 당하면 1초 정도를 더해서 움직이지 못하게 설정
+		const float Delay = PlayAnimMontage(ParriedAnimMontage) + 1.f;
+		
+		FTimerDelegate TimerDelegate;
+		TimerDelegate.BindLambda([this]
+			{
+				FGameplayTagContainer CheckTags;
+				CheckTags.AddTag(SPRGameplayTags::Character_State_Death);
+				if (StateComponent->IsCurrentStateEqualToAny(CheckTags) == false)
+				{
+					StateComponent->ClearState();
+				}
+			}
+		);
+		// 마지막 인자 false -> Loop 옵션 (false : 한번만 실행)
+		GetWorld()->GetTimerManager().SetTimer(ParriedDelayTimerHandle, TimerDelegate, Delay, false);
 	}
 }
 
