@@ -101,12 +101,22 @@ protected:
 	//주먹 무기
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<class ASPRFistWeapon> FistWeaponClass;
+
+
 protected:
 	// 피격 시 사운드, 이펙트
 	UPROPERTY(EditAnywhere, Category="Effect")
 	class USoundCue* ImpactSound;
+
+	// 방패 방어 사운드
+	UPROPERTY(EditAnywhere, Category = "Effect")
+	class USoundCue* BlockingSound;
+
 	UPROPERTY(EditAnywhere, Category = "Effect")
 	class UParticleSystem* ImpactParticle;
+
+	UPROPERTY(EditAnywhere, Category = "Effect")
+	class UParticleSystem* BlockingParticle;
 protected:
 	// 애니메이션 몽타주 - 구르기
 	UPROPERTY(EditAnywhere, Category ="Montage")
@@ -142,6 +152,9 @@ protected:
 	// 콤보 리셋 타이머 핸들
 	FTimerHandle ComboResetTimerHandle;
 
+protected:
+	// 적과 대치하고있는 방향에 서있는지 체크
+	bool bFacingEnemy = false;
 
 public:
 	ASPRCharacter();
@@ -169,6 +182,7 @@ public:
 	// 데미지 받을 때 처리
 	virtual float TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCurser) override;
 	void ImpactEffect(const FVector& Location);
+	void ShieldBlockingEffect(const FVector& Location);
 	void HitReaction(const AActor* Attacker);
 	void OnDeath();
 
@@ -226,6 +240,9 @@ protected:
 
 	// 방어 자세 가능 여부
 	bool CanPlayerBlockStance() const;
+
+	// 방패 막기 방어가 가능한지?
+	bool CanPerformAttackBlocking() const;
 
 public:
 	//콤보 AnimNotify 섹션

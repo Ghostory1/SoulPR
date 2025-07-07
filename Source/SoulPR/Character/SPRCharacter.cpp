@@ -20,6 +20,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/CapsuleComponent.h"
 #include "Animation/SPRAnimInstance.h"
+#include "Kismet/KismetMathLibrary.h"
 
 ASPRCharacter::ASPRCharacter()
 {
@@ -185,14 +186,28 @@ float ASPRCharacter::TakeDamage(float Damage, const FDamageEvent& DamageEvent, A
 {
 	float ActualDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCurser);
 
-	if (AttributeComponent)
-	{
-		AttributeComponent->TakeDamageAmount(ActualDamage);
-		//GEngine->AddOnScreenDebugMessage(0, 1.5f, FColor::Cyan, FString::Printf(TEXT("Damage : %f"), ActualDamage));
-	}
+	check(AttributeComponent);
+	check(StateComponent);
 
-	// 상태를 바꾸고 움직이지 못하게 한다.
-	StateComponent->SetState(SPRGameplayTags::Character_State_Hit);
+	// 적과 같은 방향으로 대치중인지 체크
+	// 내적으로 구함
+	bFacingEnemy = UKismetMathLibrary::InRange_FloatFloat(GetDotProductTo(EventInstigator->GetPawn()), -0.1f, 1.f);
+
+	// 방패 방어가 가능한지?
+	if (CanPerformAttackBlocking())
+	{
+		AttributeComponent->TakeDamageAmount(0.f);
+		//스테미나 차감
+		AttributeComponent->DecreaseStamina(20.f);
+		StateComponent->SetState(SPRGameplayTags::Character_State_Blocking);
+	}
+	else
+	{
+		//방패 방어를 하지 못하는 경우
+		AttributeComponent->TakeDamageAmount(ActualDamage);
+		StateComponent->SetState(SPRGameplayTags::Character_State_Hit);
+	}
+	
 	StateComponent->ToggleMovementInput(false);
 
 	if (DamageEvent.IsOfType(FPointDamageEvent::ClassID))
@@ -214,17 +229,40 @@ float ASPRCharacter::TakeDamage(float Damage, const FDamageEvent& DamageEvent, A
 	}
 	return ActualDamage;
 }
+
 void ASPRCharacter::ImpactEffect(const FVector& Location)
 {
-	// Sound , 파티클 처리
-	if (ImpactSound)
+	if (CanPerformAttackBlocking())
 	{
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), ImpactSound, Location);
+		//방패
+		ShieldBlockingEffect(Location);
+	}
+	else
+	{
+		// Sound , 파티클 처리
+		if (ImpactSound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), ImpactSound, Location);
+		}
+
+		if (ImpactParticle)
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticle, Location);
+		}
+	}
+	
+}
+void ASPRCharacter::ShieldBlockingEffect(const FVector& Location)
+{
+	// Sound , 파티클 처리
+	if (BlockingSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), BlockingSound, Location);
 	}
 
-	if (ImpactParticle)
+	if (BlockingParticle)
 	{
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticle, Location);
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BlockingParticle, Location);
 	}
 }
 void ASPRCharacter::HitReaction(const AActor* Attacker)
@@ -232,11 +270,22 @@ void ASPRCharacter::HitReaction(const AActor* Attacker)
 	// 애니메이션 처리
 	check(CombatComponent);
 
-	if (UAnimMontage* HitReactAnimMontage = CombatComponent->GetMainWeapon()->GetHitReactAnimation(Attacker))
+	if (CanPerformAttackBlocking())
 	{
-		PlayAnimMontage(HitReactAnimMontage);
+		// 방패가 있는경우
+		if (UAnimMontage* BlockingMontage = CombatComponent->GetMainWeapon()->GetMontageForTag(SPRGameplayTags::Character_Action_BlockingHit))
+		{
+			PlayAnimMontage(BlockingMontage);
+		}
 	}
-	
+	else
+	{
+		//방패가 아닌경우
+		if (UAnimMontage* HitReactAnimMontage = CombatComponent->GetMainWeapon()->GetHitReactAnimation(Attacker))
+		{
+			PlayAnimMontage(HitReactAnimMontage);
+		}
+	}
 }
 void ASPRCharacter::OnDeath()
 {
@@ -588,6 +637,7 @@ bool ASPRCharacter::CanPerformAttack(const FGameplayTag& AttackTypeTag) const
 	CheckTags.AddTag(SPRGameplayTags::Character_State_Rolling);
 	CheckTags.AddTag(SPRGameplayTags::Character_State_GeneralAction);
 	CheckTags.AddTag(SPRGameplayTags::Character_State_Hit);
+	CheckTags.AddTag(SPRGameplayTags::Character_State_Blocking);
 
 	const float StaminaCost = CombatComponent->GetMainWeapon()->GetStaminaCost(AttackTypeTag);
 
@@ -688,6 +738,14 @@ bool ASPRCharacter::CanPlayerBlockStance() const
 	return StateComponent->IsCurrentStateEqualToAny(CheckTags) == false &&
 		Weapon->GetCombatType() == ECombatType::SwordShield &&
 		AttributeComponent->CheckHasEnoughStamina(1.f);
+}
+
+bool ASPRCharacter::CanPerformAttackBlocking() const
+{
+	check(CombatComponent);
+	check(AttributeComponent);
+
+	return bFacingEnemy && CombatComponent->IsBlockingEnabled() && AttributeComponent->CheckHasEnoughStamina(20.f);
 }
 
 void ASPRCharacter::EnableComboWindow()
