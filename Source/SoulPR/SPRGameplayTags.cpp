@@ -13,6 +13,7 @@ namespace SPRGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Character_State_Blocking, "Character.State.Blocking");
 	UE_DEFINE_GAMEPLAY_TAG(Character_State_Parrying, "Character.State.Parrying");
 	UE_DEFINE_GAMEPLAY_TAG(Character_State_Parried, "Character.State.Parried");
+	UE_DEFINE_GAMEPLAY_TAG(Character_State_Stunned, "Character.State.Stunned");
 
 	UE_DEFINE_GAMEPLAY_TAG(Character_Action_Equip, "Character.Action.Equip");
 	UE_DEFINE_GAMEPLAY_TAG(Character_Action_Unequip, "Character.Action.Unequip");

@@ -13,7 +13,9 @@
 UCLASS()
 class SOULPR_API UBTService_SelectBehavior : public UBTService
 {
+
 	GENERATED_BODY()
+
 
 protected:
 	UPROPERTY()

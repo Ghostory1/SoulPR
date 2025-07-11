@@ -31,6 +31,7 @@ public:
 // Delegate Func Section
 protected:
 	virtual void OnDeath();
+	void SetDeathState();
 	void OnAttributeChanged(ESPRAttributeType AttributeType, float InValue);
 	void SetupHealthBar();
 protected:
@@ -40,6 +41,11 @@ protected:
 
 protected:
 	FTimerHandle ParriedDelayTimerHandle;
+	FTimerHandle StunnedDelayTimerHandle;
+
+	// 피격 시 스턴 확률
+	UPROPERTY(EditAnywhere)
+	int StunnedRate = 0;
 protected:
 	UPROPERTY(VisibleAnywhere)
 	class USPRAttributeComponent* AttributeComponent;

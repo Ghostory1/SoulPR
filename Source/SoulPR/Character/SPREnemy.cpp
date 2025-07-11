@@ -22,6 +22,7 @@
 #include "AIController.h"
 #include "BrainComponent.h"
 #include "Components/SPRRotationComponent.h"
+#include "AI/SPREnemyAIController.h"
 
 ASPREnemy::ASPREnemy()
 {
@@ -142,6 +143,7 @@ float ASPREnemy::TakeDamage(float Damage, const FDamageEvent& DamageEvent, ACont
 void ASPREnemy::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	GetWorld()->GetTimerManager().ClearTimer(ParriedDelayTimerHandle);
+	GetWorld()->GetTimerManager().ClearTimer(StunnedDelayTimerHandle);
 	Super::EndPlay(EndPlayReason);
 }
 
@@ -165,7 +167,22 @@ void ASPREnemy::OnDeath()
 		MeshComp->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 		MeshComp->SetSimulatePhysics(true);
 	}
+	// 사망 시 HP UI 안보이게 설정
+	SetDeathState();
+}
+void ASPREnemy::SetDeathState()
+{
+	if (StateComponent)
+	{
+		StateComponent->SetState(SPRGameplayTags::Character_State_Death);
+	}
 
+	if (ASPREnemyAIController* AIController = Cast<ASPREnemyAIController>(GetController()))
+	{
+		AIController->StopUpdateTarget();
+	}
+
+	ToggleHealthBarVisibility(false);
 }
 void ASPREnemy::OnAttributeChanged(ESPRAttributeType AttributeType, float InValue)
 {
@@ -215,12 +232,32 @@ void ASPREnemy::ImpactEffect(const FVector& Location)
 
 void ASPREnemy::HitReaction(const AActor* Attacker)
 {
-	check(CombatComponent)
+	check(CombatComponent);
 
+
+	// 스턴
+	float StunnedDelay = 0.f;
+	if (StunnedRate >= FMath::RandRange(1, 100))
+	{
+		StateComponent->SetState(SPRGameplayTags::Character_State_Stunned);
+		StunnedDelay = FMath::FRandRange(0.5f, 3.f);
+	}
 	// 애니메이션 처리
 	if (UAnimMontage* HitReactAnimMontage = CombatComponent->GetMainWeapon()->GetHitReactAnimation(Attacker))
 	{
-		PlayAnimMontage(HitReactAnimMontage);
+		const float DelaySeconds = PlayAnimMontage(HitReactAnimMontage) + StunnedDelay;
+
+		FTimerDelegate TimerDelegate;
+		TimerDelegate.BindLambda([this]()
+			{
+				FGameplayTagContainer CheckTags;
+				CheckTags.AddTag(SPRGameplayTags::Character_State_Stunned);
+				if (StateComponent->IsCurrentStateEqualToAny(CheckTags))
+				{
+					StateComponent->ClearState();
+				}
+			});
+		GetWorld()->GetTimerManager().SetTimer(StunnedDelayTimerHandle, TimerDelegate, DelaySeconds, false);
 	}
 }
 
@@ -267,9 +304,17 @@ void ASPREnemy::DeactivateWeaponCollision(EWeaponCollisionType WeaponCollisionTy
 void ASPREnemy::PerformAttack(FGameplayTag& AttackTypeTag, FOnMontageEnded& MontageEndedDelegate)
 {
 	// 랜덤하게 공격 애니메이션 가져오기
-	check(StateComponent)
-	check(AttributeComponent)
-	check(CombatComponent)
+	check(StateComponent);
+	check(AttributeComponent);
+	check(CombatComponent);
+
+	// 스턴시 공격 불가 
+	FGameplayTagContainer CheckTags;
+	CheckTags.AddTag(SPRGameplayTags::Character_State_Stunned);
+	if (StateComponent->IsCurrentStateEqualToAny(CheckTags))
+	{
+		return;
+	}
 
 	if (const ASPRWeapon* Weapon = CombatComponent->GetMainWeapon())
 	{

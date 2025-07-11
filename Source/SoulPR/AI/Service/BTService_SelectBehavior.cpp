@@ -42,13 +42,14 @@ void UBTService_SelectBehavior::UpdateBehavior(UBlackboardComponent* BlackboardC
 {
 	check(BlackboardComp);
 	check(ControlledEnemy);
-	
-	
+
+
 	const USPRStateComponent* StateComponent = ControlledEnemy->GetComponentByClass<USPRStateComponent>();
 	check(StateComponent);
 
 	FGameplayTagContainer CheckTags;
 	CheckTags.AddTag(SPRGameplayTags::Character_State_Parried);
+	CheckTags.AddTag(SPRGameplayTags::Character_State_Stunned);
 
 	// 이미 스턴 상태
 	if (StateComponent->IsCurrentStateEqualToAny(CheckTags))
@@ -87,7 +88,5 @@ void UBTService_SelectBehavior::UpdateBehavior(UBlackboardComponent* BlackboardC
 				SetBehaviorKey(BlackboardComp, ESPRAIBehavior::Idle);
 			}
 		}
-
 	}
-
 }

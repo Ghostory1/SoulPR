@@ -33,6 +33,7 @@ EBTNodeResult::Type UBTTask_PerformAttack::ExecuteTask(UBehaviorTreeComponent& O
 				{
 					FGameplayTagContainer CheckTags;
 					CheckTags.AddTag(SPRGameplayTags::Character_State_Parried);
+					CheckTags.AddTag(SPRGameplayTags::Character_State_Stunned);
 					if(StateComponent->IsCurrentStateEqualToAny(CheckTags) == false)
 					{
 						// 패링 상태가 아니면 ClearState

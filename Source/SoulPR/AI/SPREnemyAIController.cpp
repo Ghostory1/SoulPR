@@ -18,6 +18,12 @@ ASPREnemyAIController::ASPREnemyAIController()
 	AIPerceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerception"));
 }
 
+void ASPREnemyAIController::StopUpdateTarget()
+{
+	GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
+	SetTarget(nullptr);
+}
+
 void ASPREnemyAIController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
@@ -32,8 +38,8 @@ void ASPREnemyAIController::OnPossess(APawn* InPawn)
 
 void ASPREnemyAIController::OnUnPossess()
 {
+	StopUpdateTarget();
 	ControlledEnemy = nullptr;
-	GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
 	Super::OnUnPossess();
 }
 
@@ -71,8 +77,11 @@ void ASPREnemyAIController::SetTarget(AActor* NewTarget) const
 		Blackboard->SetValueAsObject(FName("Target"), NewTarget);
 	}
 
-	if (USPRRotationComponent* RotationComponent = ControlledEnemy->GetComponentByClass<USPRRotationComponent>())
+	if (IsValid(ControlledEnemy))
 	{
-		RotationComponent->SetTargetActor(NewTarget);
+		if (USPRRotationComponent* RotationComponent = ControlledEnemy->GetComponentByClass<USPRRotationComponent>())
+		{
+			RotationComponent->SetTargetActor(NewTarget);
+		}
 	}
 }

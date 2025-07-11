@@ -12,7 +12,9 @@
 UCLASS()
 class SOULPR_API ASPREnemyAIController : public AAIController
 {
+
 	GENERATED_BODY()
+
 protected:
 	UPROPERTY(EditAnywhere)
 	UBehaviorTree* BehaviorTreeAsset;
@@ -29,6 +31,8 @@ protected:
 public:
 	ASPREnemyAIController();
 
+public:
+	void StopUpdateTarget();
 protected:
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void OnUnPossess() override;
