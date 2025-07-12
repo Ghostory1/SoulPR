@@ -110,6 +110,12 @@ void USPRAttributeComponent::TakeDamageAmount(float DamageAmount)
 	}
 }
 
+void USPRAttributeComponent::HealPlayer(float HealAmount)
+{
+	BaseHealth = FMath::Clamp(BaseHealth + HealAmount, 0.f, MaxHealth);
+	BroadcastAttributeChanged(ESPRAttributeType::Health);
+}
+
 void USPRAttributeComponent::RegenerateStaminaHandler()
 {
 	BaseStamina = FMath::Clamp(BaseStamina + StaminaRegenRate, 0.f, MaxStamina);

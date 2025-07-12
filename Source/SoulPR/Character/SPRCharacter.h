@@ -9,6 +9,7 @@
 #include "UI/SPRPlayerHUDWidget.h"
 #include "GameplayTagContainer.h"
 #include "Interfaces/SPRCombatInterface.h"
+
 #include "SPRCharacter.generated.h"
 
 
@@ -71,6 +72,10 @@ private:
 	// 패링
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction* ParryAction;
+	// 포션 마시기
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	UInputAction* ConsumeAction;
+
 private:
 	// 캐릭터 스탯 관리
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
@@ -85,6 +90,10 @@ private:
 	// LockOn Targeting
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class USPRTargetingComponent* TargetingComponent;
+
+	// 포션 인벤토리 컴포넌트
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	class USPRPotionInventoryComponent* PotionInventoryComponent;
 	
 // Body Parts Mesh
 // 방어구 장착 시 안보이게 해줄 부위
@@ -125,6 +134,10 @@ protected:
 	// 애니메이션 몽타주 - 구르기
 	UPROPERTY(EditAnywhere, Category ="Montage")
 	UAnimMontage* RollingMontage;
+
+	// 포션 마시기
+	UPROPERTY(EditAnywhere, Category = "Montage")
+	UAnimMontage* DrinkingMontage;
 protected:
 	// 질주 속도
 	UPROPERTY(EditAnywhere, Category="Movement Speed")
@@ -230,6 +243,9 @@ protected:
 	// 패링
 	void Parrying();
 
+	// 포션 마시기
+	void Consume();
+
 protected:
 	// 현재 상태에서 수행 가능한 일반공격
 	FGameplayTag GetAttackPerform() const;
@@ -257,6 +273,11 @@ protected:
 	// 패링의 성공 여부
 	bool ParriedAttackSucceed() const;
 
+	// 포션 마실 수 있는 상황인지
+	bool CanDrinkPotion() const;
+
+	// 포션 마시는 동작 도중에 취소될 때 함수 (포션 마시기 중단)
+	void InterruptWhileDrinkingPotion() const;
 public:
 	//콤보 AnimNotify 섹션
 	void EnableComboWindow();

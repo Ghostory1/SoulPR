@@ -21,6 +21,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Animation/SPRAnimInstance.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Components/SPRPotionInventoryComponent.h"
 
 ASPRCharacter::ASPRCharacter()
 {
@@ -67,7 +68,8 @@ ASPRCharacter::ASPRCharacter()
 	// OnDeath Delegate 함수 바인딩
 	AttributeComponent->OnDeath.AddUObject(this, &ThisClass::OnDeath);
 
-
+	// 포션 인벤토리
+	PotionInventoryComponent = CreateDefaultSubobject<USPRPotionInventoryComponent>(TEXT("PotionInventory"));
 }
 
 // Called when the game starts or when spawned
@@ -152,6 +154,9 @@ void ASPRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 		// 패링
 		EnhancedInputComponent->BindAction(ParryAction, ETriggerEvent::Started, this, &ThisClass::Parrying);
+
+		// 포션
+		EnhancedInputComponent->BindAction(ConsumeAction, ETriggerEvent::Started, this, &ThisClass::Consume);
 	}
 }
 
@@ -191,6 +196,9 @@ float ASPRCharacter::TakeDamage(float Damage, const FDamageEvent& DamageEvent, A
 
 	check(AttributeComponent);
 	check(StateComponent);
+
+	// 포션을 마시고 있으면 중단
+	InterruptWhileDrinkingPotion();
 
 	// 적과 같은 방향으로 대치중인지 체크
 	// 내적으로 구함
@@ -658,6 +666,18 @@ void ASPRCharacter::Parrying()
 		}
 	}
 }
+void ASPRCharacter::Consume()
+{
+	if (!StateComponent)
+	{
+		return;
+	}
+	if (CanDrinkPotion())
+	{
+		StateComponent->SetState(SPRGameplayTags::Character_State_DrinkingPotion);
+		PlayAnimMontage(DrinkingMontage);
+	}
+}
 
 FGameplayTag ASPRCharacter::GetAttackPerform() const
 {
@@ -687,6 +707,8 @@ bool ASPRCharacter::CanPerformAttack(const FGameplayTag& AttackTypeTag) const
 	CheckTags.AddTag(SPRGameplayTags::Character_State_GeneralAction);
 	CheckTags.AddTag(SPRGameplayTags::Character_State_Hit);
 	CheckTags.AddTag(SPRGameplayTags::Character_State_Blocking);
+	CheckTags.AddTag(SPRGameplayTags::Character_State_DrinkingPotion);
+	CheckTags.AddTag(SPRGameplayTags::Character_State_Parrying);
 
 	const float StaminaCost = CombatComponent->GetMainWeapon()->GetStaminaCost(AttackTypeTag);
 
@@ -783,6 +805,8 @@ bool ASPRCharacter::CanPlayerBlockStance() const
 	CheckTags.AddTag(SPRGameplayTags::Character_State_GeneralAction);
 	CheckTags.AddTag(SPRGameplayTags::Character_State_Hit);
 	CheckTags.AddTag(SPRGameplayTags::Character_State_Rolling);
+	CheckTags.AddTag(SPRGameplayTags::Character_State_DrinkingPotion);
+	CheckTags.AddTag(SPRGameplayTags::Character_State_Parrying);
 
 	return StateComponent->IsCurrentStateEqualToAny(CheckTags) == false &&
 		Weapon->GetCombatType() == ECombatType::SwordShield &&
@@ -817,6 +841,8 @@ bool ASPRCharacter::CanPerformParry() const
 	CheckTags.AddTag(SPRGameplayTags::Character_State_Blocking);
 	CheckTags.AddTag(SPRGameplayTags::Character_State_Death);
 	CheckTags.AddTag(SPRGameplayTags::Character_State_Parrying);
+	CheckTags.AddTag(SPRGameplayTags::Character_State_DrinkingPotion);
+
 
 	return StateComponent->IsCurrentStateEqualToAny(CheckTags) == false &&
 		MainWeapon->GetCombatType() == ECombatType::SwordShield &&
@@ -832,6 +858,40 @@ bool ASPRCharacter::ParriedAttackSucceed() const
 	CheckTags.AddTag(SPRGameplayTags::Character_State_Parrying);
 
 	return StateComponent->IsCurrentStateEqualToAny(CheckTags) && bFacingEnemy; 
+}
+
+bool ASPRCharacter::CanDrinkPotion() const
+{
+	check(PotionInventoryComponent);
+	check(StateComponent);
+
+	FGameplayTagContainer CheckTags;
+	CheckTags.AddTag(SPRGameplayTags::Character_State_Attacking);
+	CheckTags.AddTag(SPRGameplayTags::Character_State_Blocking);
+	CheckTags.AddTag(SPRGameplayTags::Character_State_Death);
+	CheckTags.AddTag(SPRGameplayTags::Character_State_GeneralAction);
+	CheckTags.AddTag(SPRGameplayTags::Character_State_Hit);
+	CheckTags.AddTag(SPRGameplayTags::Character_State_Parrying);
+	CheckTags.AddTag(SPRGameplayTags::Character_State_Rolling);
+	
+	return PotionInventoryComponent->GetPotionQuantity() > 0 && StateComponent->IsCurrentStateEqualToAny(CheckTags) == false;
+}
+
+void ASPRCharacter::InterruptWhileDrinkingPotion() const
+{
+	check(StateComponent);
+
+	FGameplayTagContainer CheckTags;
+	CheckTags.AddTag(SPRGameplayTags::Character_State_DrinkingPotion);
+	
+
+	if (StateComponent->IsCurrentStateEqualToAny(CheckTags))
+	{
+		if (PotionInventoryComponent)
+		{
+			PotionInventoryComponent->DespawnPotion();
+		}
+	}
 }
 
 void ASPRCharacter::EnableComboWindow()

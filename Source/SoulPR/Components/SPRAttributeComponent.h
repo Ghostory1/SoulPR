@@ -84,6 +84,9 @@ public:
 	void BroadcastAttributeChanged(ESPRAttributeType InAttributeType) const;
 
 	void TakeDamageAmount(float DamageAmount);
+
+	// 체력 회복
+	void HealPlayer(float HealAmount);
 private:
 	// 스태미나 재충전 
 	void RegenerateStaminaHandler();
