@@ -27,6 +27,7 @@ void USPRPotionInventoryComponent::DrinkPotion()
 		// 포션 하나 차감
 		PotionQuantity--;
 		AttributeComponent->HealPlayer(PotionHealAmount);
+		BroadcastPotionUpdate();
 	}
 }
 
@@ -54,5 +55,14 @@ void USPRPotionInventoryComponent::DespawnPotion()
 void USPRPotionInventoryComponent::SetPotionQuantity(int32 InQuantity)
 {
 	PotionQuantity = InQuantity;
+	BroadcastPotionUpdate();
+}
+
+void USPRPotionInventoryComponent::BroadcastPotionUpdate()
+{
+	if (OnUpdatePotionAmount.IsBound())
+	{
+		OnUpdatePotionAmount.Broadcast(PotionQuantity);
+	}
 }
 

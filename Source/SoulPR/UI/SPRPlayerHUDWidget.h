@@ -23,6 +23,9 @@ protected:
 
 	UPROPERTY(meta = (BindWidget), BlueprintReadWrite)
 	class USPRStatBarWidget* HealthBarWidget;
+
+	UPROPERTY(meta = (BindWidget), BlueprintReadWrite)
+	class USPRPotionWidget* PotionWidget;
 public:
 	USPRPlayerHUDWidget(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
@@ -30,4 +33,7 @@ public:
 	virtual void NativeConstruct() override;
 protected:
 	void OnAttributeChanged(ESPRAttributeType AttributeType, float InValue);
+
+	// PotionInventoryComponent에 델리게이트 연결할 함수
+	void OnPotionQuantityChanged(int32 InAmount);
 };

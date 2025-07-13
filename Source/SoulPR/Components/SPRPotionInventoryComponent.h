@@ -7,11 +7,15 @@
 #include "SPRPotionInventoryComponent.generated.h"
 
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FDelegateOnUpdatePotionAmount, int32);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SOULPR_API USPRPotionInventoryComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
+public:
+	FDelegateOnUpdatePotionAmount OnUpdatePotionAmount;
 
 protected:
 	// 포션 수량
@@ -46,5 +50,7 @@ public:
 	void SetPotionQuantity(int32 InQuantity);
 
 	FORCEINLINE int GetPotionQuantity() const { return PotionQuantity; }
-		
+	
+	// 포션 수량 델리게이트함수
+	void BroadcastPotionUpdate();
 };

@@ -5,6 +5,8 @@
 #include "SPRDefine.h"
 #include "SPRStatBarWidget.h"
 #include "Components/SPRAttributeComponent.h"
+#include "SPRPotionWidget.h"
+#include "Components/SPRPotionInventoryComponent.h"
 
 USPRPlayerHUDWidget::USPRPlayerHUDWidget(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
@@ -24,7 +26,15 @@ void USPRPlayerHUDWidget::NativeConstruct()
 			Attribute->BroadcastAttributeChanged(ESPRAttributeType::Stamina);
 			Attribute->BroadcastAttributeChanged(ESPRAttributeType::Health);
 		}
+
+		if (USPRPotionInventoryComponent* PotionInventoryComponent = OwningPawn->GetComponentByClass<USPRPotionInventoryComponent>())
+		{
+			PotionInventoryComponent->OnUpdatePotionAmount.AddUObject(this, &ThisClass::OnPotionQuantityChanged);
+			PotionInventoryComponent->BroadcastPotionUpdate();
+		}
 	}
+
+	
 }
 
 void USPRPlayerHUDWidget::OnAttributeChanged(ESPRAttributeType AttributeType, float InValue)
@@ -37,5 +47,13 @@ void USPRPlayerHUDWidget::OnAttributeChanged(ESPRAttributeType AttributeType, fl
 	case ESPRAttributeType::Health:
 		HealthBarWidget->SetRatio(InValue);
 		break;
+	}
+}
+
+void USPRPlayerHUDWidget::OnPotionQuantityChanged(int32 InAmount)
+{
+	if (PotionWidget)
+	{
+		PotionWidget->SetPotionQuantity(InAmount);
 	}
 }
