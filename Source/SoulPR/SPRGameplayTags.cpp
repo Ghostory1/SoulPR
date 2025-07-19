@@ -27,4 +27,5 @@ namespace SPRGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Character_Attack_Running, "Character.Attack.Running");
 	UE_DEFINE_GAMEPLAY_TAG(Character_Attack_Special, "Character.Attack.Special");
 	UE_DEFINE_GAMEPLAY_TAG(Character_Attack_Heavy, "Character.Attack.Heavy");
+	UE_DEFINE_GAMEPLAY_TAG(Character_Attack_Air, "Character.Attack.Air");
 }

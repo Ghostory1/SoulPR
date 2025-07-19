@@ -28,6 +28,7 @@ namespace SPRGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Character_Attack_Running);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Character_Attack_Special);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Character_Attack_Heavy);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Character_Attack_Air);
 	
 
 }
