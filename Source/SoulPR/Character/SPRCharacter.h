@@ -200,7 +200,7 @@ public:
 	virtual float TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCurser) override;
 	void ImpactEffect(const FVector& Location);
 	void ShieldBlockingEffect(const FVector& Location);
-	void HitReaction(const AActor* Attacker);
+	void HitReaction(const AActor* Attacker, const ESPRDamageType InDamageType);
 	void OnDeath();
 
 protected:

@@ -18,8 +18,9 @@ class SOULPR_API UBTService_SelectBehavior : public UBTService
 
 
 protected:
-	UPROPERTY()
-	class ASPREnemy* ControlledEnemy;
+
+	UPROPERTY(EditAnywhere, Category = "Blackboard")
+	FBlackboardKeySelector ControlledEnemyKey;
 
 	UPROPERTY(EditAnywhere)
 	FBlackboardKeySelector TargetKey;
@@ -37,7 +38,7 @@ protected:
 	virtual void OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* Nodememory, float DeltaSeconds) override;
 
-private:
+protected:
 	void SetBehaviorKey(UBlackboardComponent* BlackboardComp, ESPRAIBehavior Behavior) const;
-	void UpdateBehavior(UBlackboardComponent* BlackboardComp) const;
+	virtual void UpdateBehavior(UBlackboardComponent* BlackboardComp) const;
 };

@@ -9,6 +9,7 @@ public class SoulPR : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
 		PublicIncludePaths.AddRange(new string[] { "SoulPR" });
+
 		PublicDependencyModuleNames.AddRange(new string[] 
 		{ 
 			"Core", 
@@ -17,7 +18,8 @@ public class SoulPR : ModuleRules
 			"InputCore", 
 			"EnhancedInput",
 			"GameplayTags",
-			"AnimGraphRuntime"
+			"AnimGraphRuntime",
+			"UMG"
 		
 		});
 

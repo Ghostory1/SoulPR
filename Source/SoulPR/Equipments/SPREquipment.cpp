@@ -12,7 +12,8 @@ ASPREquipment::ASPREquipment()
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("EquipmentMesh"));
 	SetRootComponent(Mesh);
-	Mesh->SetCollisionProfileName(UCollisionProfile::NoCollision_ProfileName);
+	//Mesh->SetCollisionProfileName(UCollisionProfile::NoCollision_ProfileName);
+	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 }
 

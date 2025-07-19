@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+	// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -71,4 +71,11 @@ enum class ESPREquipmentType : uint8
 	// AnimNotify_EquipWeapon에서 사용
 	Weapon,
 	Shield,
+};
+
+UENUM(BlueprintType)
+enum class ESPRDamageType : uint8
+{
+	HitBack,
+	KnockBack,
 };

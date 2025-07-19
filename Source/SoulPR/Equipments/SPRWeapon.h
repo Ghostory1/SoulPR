@@ -59,6 +59,7 @@ public:
 
 public:
 	virtual void EquipItem() override;
+	void Drop();
 	virtual void UnequipItem() override;
 
 	UAnimMontage* GetMontageForTag(const struct FGameplayTag& Tag, const int32 Index = 0) const;

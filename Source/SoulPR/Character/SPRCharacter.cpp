@@ -23,6 +23,8 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Components/SPRPotionInventoryComponent.h"
 
+
+
 ASPRCharacter::ASPRCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -259,8 +261,19 @@ float ASPRCharacter::TakeDamage(float Damage, const FDamageEvent& DamageEvent, A
 
 		ImpactEffect(ImpactPoint);
 
-		HitReaction(EventInstigator->GetPawn());
+		HitReaction(EventInstigator->GetPawn(),ESPRDamageType::HitBack);
 	}
+	else if (DamageEvent.IsOfType(FRadialDamageEvent::ClassID))
+	{
+		const FRadialDamageEvent* RadialDamageEvent = static_cast<const FRadialDamageEvent*>(&DamageEvent);
+
+		const FVector HitLocation = RadialDamageEvent->Origin;
+
+		ImpactEffect(HitLocation);
+
+		HitReaction(EventInstigator->GetPawn(), ESPRDamageType::KnockBack);
+	}
+
 	return ActualDamage;
 }
 
@@ -299,7 +312,7 @@ void ASPRCharacter::ShieldBlockingEffect(const FVector& Location)
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BlockingParticle, Location);
 	}
 }
-void ASPRCharacter::HitReaction(const AActor* Attacker)
+void ASPRCharacter::HitReaction(const AActor* Attacker, const ESPRDamageType InDamageType)
 {
 	// 애니메이션 처리
 	check(CombatComponent);
@@ -314,13 +327,26 @@ void ASPRCharacter::HitReaction(const AActor* Attacker)
 	}
 	else
 	{
-		//방패가 아닌경우
-		if (UAnimMontage* HitReactAnimMontage = CombatComponent->GetMainWeapon()->GetHitReactAnimation(Attacker))
+		//방패가 아닌경우 데미지가 들어온거니까
+		if (InDamageType == ESPRDamageType::HitBack)
 		{
-			PlayAnimMontage(HitReactAnimMontage);
+			if (UAnimMontage* HitReactAnimMontage = CombatComponent->GetMainWeapon()->GetHitReactAnimation(Attacker))
+			{
+				PlayAnimMontage(HitReactAnimMontage);
+			}
 		}
+		else if (InDamageType == ESPRDamageType::KnockBack)
+		{
+			if (UAnimMontage* HitReactAnimMontage = CombatComponent->GetMainWeapon()->GetMontageForTag(SPRGameplayTags::Character_Action_KnockBackHit))
+			{
+				PlayAnimMontage(HitReactAnimMontage);
+			}
+		}
+	
 	}
 }
+
+
 void ASPRCharacter::OnDeath()
 {
 	if (UCapsuleComponent* CapsuleComp = GetCapsuleComponent())
@@ -467,7 +493,9 @@ void ASPRCharacter::Rolling()
 	check(AttributeComponent);
 	check(StateComponent);
 
-	if (AttributeComponent->CheckHasEnoughStamina(15.f))
+	FGameplayTagContainer CheckTags;
+	CheckTags.AddTag(SPRGameplayTags::Character_State_Rolling);
+	if (AttributeComponent->CheckHasEnoughStamina(15.f) && StateComponent->IsCurrentStateEqualToAny(CheckTags)== false)
 	{
 		//스태미나 재충전 멈춤
 		AttributeComponent->ToggleStaminaRegeneration(false);

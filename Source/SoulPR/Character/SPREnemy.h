@@ -109,6 +109,8 @@ public:
 
 	// HP Bar 토글
 	void ToggleHealthBarVisibility(bool bVisibility);
+	// 적이 나를 타겟팅하고있음
+	virtual void SeesTarget(AActor* InTargetActor);
 public:
 	FORCEINLINE class ATargetPoint* GetPatrolPoint()
 	{

@@ -13,6 +13,8 @@
 
 #include "Character/SPRCharacter.h"
 
+
+
 ASPREnemyAIController::ASPREnemyAIController()
 {
 	AIPerceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerception"));
@@ -56,6 +58,7 @@ void ASPREnemyAIController::UpdateTarget() const
 		{
 			SetTarget(PlayerCharacter);
 			ControlledEnemy->ToggleHealthBarVisibility(true);
+			ControlledEnemy->SeesTarget(PlayerCharacter);
 		}
 		else
 		{

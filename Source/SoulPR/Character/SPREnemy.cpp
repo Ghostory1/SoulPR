@@ -167,6 +167,13 @@ void ASPREnemy::OnDeath()
 		MeshComp->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 		MeshComp->SetSimulatePhysics(true);
 	}
+
+	// 죽으면 무기 드랍
+	if (ASPRWeapon* MainWeapon = CombatComponent->GetMainWeapon())
+	{
+		MainWeapon->Drop();
+	}
+
 	// 사망 시 HP UI 안보이게 설정
 	SetDeathState();
 }
@@ -373,5 +380,9 @@ void ASPREnemy::ToggleHealthBarVisibility(bool bVisibility)
 	{
 		HealthBarWidgetComponent->SetVisibility(bVisibility);
 	}
+}
+
+void ASPREnemy::SeesTarget(AActor* InTargetActor)
+{
 }
 

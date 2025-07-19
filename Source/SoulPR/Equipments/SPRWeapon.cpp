@@ -78,7 +78,18 @@ void ASPRWeapon::EquipItem()
 		}
 	}
 }
-
+void ASPRWeapon::Drop()
+{
+	// 맨 주먹이 아니면 드랍
+	if (CombatType != ECombatType::MeleeFists)
+	{
+		// 무기를 먼저 떼어내고
+		DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		// 콜리전 켜주고
+		Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		Mesh->SetSimulatePhysics(true);
+	}
+}
 void ASPRWeapon::UnequipItem()
 {
 
