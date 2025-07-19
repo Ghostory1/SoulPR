@@ -5,6 +5,8 @@
 
 #include "Components/WidgetComponent.h"
 #include "UI/SPRBossHealthWidget.h"
+#include "Kismet/GameplayStatics.h"
+#include "Components/AudioComponent.h"
 
 void ASPREnemyBoss::BeginPlay()
 {
@@ -38,6 +40,12 @@ void ASPREnemyBoss::OnDeath()
 	{
 		BossHealthBarWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
+
+	// º¸½º »ç¸Á½Ã À½¾Ç ²ô±â
+	if (IsValid(BossMusic))
+	{
+		BossMusic->FadeOut(2.f, 0);
+	}
 }
 
 void ASPREnemyBoss::SeesTarget(AActor* InTargetActor)
@@ -49,4 +57,21 @@ void ASPREnemyBoss::SeesTarget(AActor* InTargetActor)
 			BossHealthBarWidget->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 		}
 	}
+
+	// º¸½º ¹è°æÀ½¾Ç Àç»ý
+	if (BossMusicAsset)
+	{
+		if (!bStartedBossMusic)
+		{
+			bStartedBossMusic = true;
+			BossMusic = UGameplayStatics::SpawnSound2D(this, BossMusicAsset);
+			BossMusic->FadeIn(1.f);
+		}
+	}
+}
+
+void ASPREnemyBoss::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	GEngine->AddOnScreenDebugMessage(1, 1.5f, FColor::Cyan, FString::Printf(TEXT("%f"), AttributeComponent->GetBaseStamina()));
 }

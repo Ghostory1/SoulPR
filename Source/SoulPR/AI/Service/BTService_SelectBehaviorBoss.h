@@ -15,5 +15,8 @@ class SOULPR_API UBTService_SelectBehaviorBoss : public UBTService_SelectBehavio
 	GENERATED_BODY()
 	
 protected:
+	UPROPERTY(EditAnywhere)
+	float StaminaCheckValue = 40.f;
+protected:
 	virtual void UpdateBehavior(UBlackboardComponent* BlackboardComp)  const override;
 };

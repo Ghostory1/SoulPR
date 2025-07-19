@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 using UnrealBuildTool;
+using UnrealBuildTool.Rules;
 
 public class SoulPR : ModuleRules
 {
@@ -19,9 +20,9 @@ public class SoulPR : ModuleRules
 			"EnhancedInput",
 			"GameplayTags",
 			"AnimGraphRuntime",
-			"UMG"
-		
-		});
+            "NavigationSystem"
+
+        });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 

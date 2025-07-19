@@ -54,6 +54,7 @@ enum class ESPRAIBehavior : uint8
 	MeleeAttack,
 	Approach,
 	Stunned,
+	Strafe,
 };
 
 UENUM(BlueprintType)

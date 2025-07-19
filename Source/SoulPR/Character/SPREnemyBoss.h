@@ -22,9 +22,22 @@ protected:
 	class USPRBossHealthWidget* BossHealthBarWidget;
 
 protected:
+	UPROPERTY(EditAnywhere)
+	USoundWave* BossMusicAsset;
+
+	UPROPERTY()
+	UAudioComponent* BossMusic;
+
+	// 한번만 노래 실행
+	bool bStartedBossMusic = false;
+
+protected:
 	virtual void BeginPlay() override;
 
 	virtual void OnDeath() override;
 
 	virtual void SeesTarget(AActor* InTargetActor) override;
+	virtual void Tick(float DeltaSeconds) override;
+
+
 };
