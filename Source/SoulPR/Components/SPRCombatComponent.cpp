@@ -47,6 +47,11 @@ void USPRCombatComponent::SetWeapon(ASPRWeapon* NewWeapon)
 		}
 	}
 	MainWeapon = NewWeapon;
+
+	if (OnChangedWeapon.IsBound())
+	{
+		OnChangedWeapon.Broadcast();
+	}
 }
 
 void USPRCombatComponent::SetArmour(ASPRArmour* NewArmour)
@@ -94,6 +99,11 @@ void USPRCombatComponent::SetShield(ASPRShield* NewShield)
 	}
 
 	Shield = NewShield;
+
+	if (OnChangedWeapon.IsBound())
+	{
+		OnChangedWeapon.Broadcast();
+	}
 }
 
 void USPRCombatComponent::SetCombatEnabled(const bool bEnabled)

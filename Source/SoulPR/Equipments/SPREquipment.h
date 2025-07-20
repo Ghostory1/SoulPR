@@ -18,6 +18,10 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Equipment | Mesh")
 	UMeshComponent* Mesh;
+
+	UPROPERTY(EditAnywhere, Category="Equipment | UI")
+	class UTexture2D* EquipmentIcon;
+
 public:	
 	// Sets default values for this actor's properties
 	ASPREquipment();
@@ -37,4 +41,6 @@ public:
 	virtual void UnequipItem();
 
 	virtual void AttachToOwner(FName SocketName);
+	 
+	FORCEINLINE UTexture2D* GetEquipmentIcon() const { return EquipmentIcon; }
 };

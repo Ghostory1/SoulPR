@@ -11,6 +11,8 @@
 
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FDelegateOnChangedCombat, bool);
+DECLARE_MULTICAST_DELEGATE(FDelegateOnChangedWeapon);
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SOULPR_API USPRCombatComponent : public UActorComponent
@@ -20,6 +22,9 @@ class SOULPR_API USPRCombatComponent : public UActorComponent
 public:
 	// Combat 상태 전환을 알리는 Delegate
 	FDelegateOnChangedCombat OnChangedCombat;
+
+	// 무기 변경을 알리는 Delegate
+	FDelegateOnChangedWeapon OnChangedWeapon;
 public:
 	USPRCombatComponent();
 

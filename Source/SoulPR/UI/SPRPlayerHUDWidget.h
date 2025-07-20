@@ -26,6 +26,17 @@ protected:
 
 	UPROPERTY(meta = (BindWidget), BlueprintReadWrite)
 	class USPRPotionWidget* PotionWidget;
+
+	UPROPERTY(meta = (BindWidget), BlueprintReadWrite)
+	class USPRWeaponWidget* ShieldWidget;
+
+	UPROPERTY(meta = (BindWidget), BlueprintReadWrite)
+	class USPRWeaponWidget* WeaponWidget;
+
+	// 무기가 없을 때 빈 이미지
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UTexture2D* BlankWeaponIcon;
+
 public:
 	USPRPlayerHUDWidget(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
@@ -36,4 +47,7 @@ protected:
 
 	// PotionInventoryComponent에 델리게이트 연결할 함수
 	void OnPotionQuantityChanged(int32 InAmount);
+
+	// FDelegateOnChangedWeapon 델리게이트 함수
+	void OnWeaponChanged();
 };
