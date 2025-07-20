@@ -196,6 +196,13 @@ float ASPRCharacter::TakeDamage(float Damage, const FDamageEvent& DamageEvent, A
 {
 	float ActualDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCurser);
 
+	// 무적 프레임 활성화 시 
+	if (!CanReceiveDamage())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Rolling IFrames"));
+		return ActualDamage;
+	}
+
 	check(AttributeComponent);
 	check(StateComponent);
 
@@ -974,5 +981,10 @@ void ASPRCharacter::DeactivateWeaponCollision(EWeaponCollisionType WeaponCollisi
 	{
 		CombatComponent->GetMainWeapon()->DeactivateCollision(WeaponCollisionType);
 	}
+}
+
+void ASPRCharacter::ToggleFrames(const bool bEnabled)
+{
+	bEnabledIFrames = bEnabled;
 }
 

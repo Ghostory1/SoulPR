@@ -173,6 +173,9 @@ protected:
 	// 적과 대치하고있는 방향에 서있는지 체크
 	bool bFacingEnemy = false;
 
+	// 무적 프레임 체크
+	bool bEnabledIFrames = false;
+
 public:
 	ASPRCharacter();
 
@@ -208,6 +211,7 @@ protected:
 	bool IsMoving() const;
 	bool CanToggleCombat() const;
 	FORCEINLINE bool IsSprinting() const { return bSprinting; };
+	FORCEINLINE bool CanReceiveDamage() const { return !bEnabledIFrames; }
 
 	// 인풋 맵핑 함수
 	void Move(const FInputActionValue& Values);
@@ -288,4 +292,5 @@ public:
 public:
 	virtual void ActivateWeaponCollision(EWeaponCollisionType WeaponCollisionType) override;
 	virtual void DeactivateWeaponCollision(EWeaponCollisionType WeaponCollisionType) override;
+	virtual void ToggleFrames(const bool bEnabled) override;
 };

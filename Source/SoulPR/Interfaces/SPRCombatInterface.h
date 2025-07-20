@@ -30,4 +30,7 @@ public:
 	virtual void PerformAttack(struct FGameplayTag& AttackTypeTag, FOnMontageEnded& MontageEndedDelegate) {}
 	virtual void Parried() {}
 
+	// 구르기 무적 프레임 토글
+	virtual void ToggleFrames(const bool bEnabled) {}
+
 };
