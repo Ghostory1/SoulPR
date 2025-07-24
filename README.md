@@ -6,7 +6,7 @@
 ## 🧠 개요
 
 이 프로젝트는 Unreal Engine 5.5와 C++를 기반으로 한 **소울류(Soulslike) 게임 모작**입니다.  
-플레이어와 적, 보스 간의 정교한 전투 시스템을 구현하는 데 초점을 두었습니다.
+- 🗺️ 현재 기능 중심 구조이며, 맵 및 게임 진행 요소는 향후 추가 예정
 
 ### 🔗 프로젝트 문서 (Notion)
 [📘 정리된 문서 바로가기](https://www.notion.so/208f2a3a5fb580648632e2cf3efcadb8?v=208f2a3a5fb58155800f000c7e2b87b5&source=copy_link)
@@ -23,18 +23,3 @@
 - 🕹️ 애니메이션 시스템 (노티파이 및 블렌드)
 - 🎮 전반적인 전투 조작 감각 구현
 
-## 🗂️ 프로젝트 구조 예시
-
-```bash
-SoullikeProject/
-├── Content/
-│   ├── Characters/
-│   │   ├── Player/
-│   │   ├── Enemies/
-│   │   └── Boss/
-│   ├── Blueprints/
-│   ├── Animations/
-│   └── Weapons/
-├── Source/
-│   └── SoullikeProject/
-└── SoullikeProject.uproject
